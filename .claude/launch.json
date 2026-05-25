@@ -8,6 +8,12 @@
       "port": 7000
     },
     {
+      "name": "dev",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["webpack-dev-server", "--config", "webpack.dev.js"],
+      "port": 8080
+    },
+    {
       "name": "api",
       "runtimeExecutable": "node",
       "runtimeArgs": ["restaurant-server/app.js", "--port=1338"],
