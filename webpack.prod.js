@@ -100,7 +100,7 @@ module.exports = merge(common, {
             loader: "responsive-loader",
             options: {
               // If you want to enable sharp support:
-              adapter: require("responsive-loader/sharp"),
+              adapter: require("responsive-loader/jimp"),
               sizes: [300, 600]
             }
           }

@@ -1,72 +1,47 @@
 import * as idb from "idb";
 
 const dbPromise = idb.open("restaurants-store", 6, db => {
-  // create the restaurants table if it doesn't exist
   if (!db.objectStoreNames.contains("restaurants")) {
-    console.log("Creating Object Store - restaurants");
     db.createObjectStore("restaurants", { keyPath: "id" });
   }
   if (!db.objectStoreNames.contains("reviews")) {
-    console.log("Creating Object Store - reviews");
     db.createObjectStore("reviews", { keyPath: "id" });
   }
-  // create an object store to cache outgoing review submissions
   if (!db.objectStoreNames.contains("sync-reviews")) {
-    db.createObjectStore("sync-reviews", {
-      keyPath: ["name", "restaurant_id"]
-    });
+    db.createObjectStore("sync-reviews", { keyPath: ["name", "restaurant_id"] });
   }
 });
 
-export function writeItem(storeName, item) {
-  // console.log("writeItem", storeName, item);
-  return dbPromise.then(db => {
-    const tx = db.transaction(storeName, "readwrite");
-    const store = tx.objectStore(storeName);
-    store.put(item);
-    return tx.complete;
-  });
+export async function writeItem(storeName, item) {
+  const db = await dbPromise;
+  const tx = db.transaction(storeName, "readwrite");
+  tx.objectStore(storeName).put(item);
+  return tx.complete;
 }
 
-export function getItems(storeName) {
-  return dbPromise.then(db => {
-    const tx = db.transaction(storeName, "readonly");
-    const store = tx.objectStore(storeName);
-    return store.getAll();
-  });
+export async function getItems(storeName) {
+  const db = await dbPromise;
+  return db.transaction(storeName, "readonly").objectStore(storeName).getAll();
 }
 
-export function getItem(storeName, id) {
-  // console.log("getItem", storeName, id);
+export async function getItem(storeName, id) {
   const validID = typeof id === "number" ? id : Number(id);
-  return dbPromise.then(db =>
-    db
-      .transaction(storeName, "readonly")
-      .objectStore(storeName)
-      .get(validID)
-  );
+  const db = await dbPromise;
+  return db.transaction(storeName, "readonly").objectStore(storeName).get(validID);
 }
 
-export function deleteItems(storeName) {
-  // console.log("deleteItems", storeName);
-  return dbPromise.then(db => {
-    const tx = db.transaction(storeName, "readwrite");
-    const store = tx.objectStore(storeName);
-    store.clear();
-    return tx.complete;
-  });
+export async function deleteItems(storeName) {
+  const db = await dbPromise;
+  const tx = db.transaction(storeName, "readwrite");
+  tx.objectStore(storeName).clear();
+  return tx.complete;
 }
 
-export function deleteItem(storeName, id) {
-  console.log("deleteItem", storeName, id);
-  return dbPromise
-    .then(db => {
-      const tx = db.transaction(storeName, "readwrite");
-      const store = tx.objectStore(storeName);
-      store.delete(id);
-      return tx.complete;
-    })
-    .then(() => console.log(`Item ${id} deleted`));
+export async function deleteItem(storeName, id) {
+  const db = await dbPromise;
+  const tx = db.transaction(storeName, "readwrite");
+  tx.objectStore(storeName).delete(id);
+  return tx.complete;
 }
 
 // For some reason, the Sails backend returns inconsistent data

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "ui",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["serve.js"],
+      "port": 7000
+    },
+    {
+      "name": "api",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["restaurant-server/app.js", "--port=1338"],
+      "port": 1338
+    }
+  ]
+}
