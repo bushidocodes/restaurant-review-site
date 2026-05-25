@@ -1,7 +1,13 @@
 import GoogleMapsLoader from "google-maps";
 import { mapMarkerForRestaurant } from "./dbhelper";
 
-const API_KEY = "AIzaSyDCcBBW2vjvek5Xyp4LvoJech4HLQyARWo";
+const API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
+
+if (!API_KEY) {
+  console.warn(
+    "GOOGLE_MAPS_API_KEY is not set. Set it in your environment before building; see .env.example."
+  );
+}
 
 GoogleMapsLoader.KEY = API_KEY;
 
