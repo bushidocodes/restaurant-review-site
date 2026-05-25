@@ -1,4 +1,5 @@
 const merge = require("webpack-merge");
+const Dotenv = require("dotenv-webpack");
 const common = require("./webpack.common.js");
 const { InjectManifest } = require("workbox-webpack-plugin");
 
@@ -31,6 +32,7 @@ module.exports = merge(common, {
     filename: "[name].js"
   },
   plugins: [
+    new Dotenv({ systemvars: true }),
     new CleanWebpackPlugin(["dist"]),
     new CopyWebpackPlugin([
       "./src/manifest.json",

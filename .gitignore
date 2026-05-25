@@ -2,3 +2,5 @@ node_modules
 .DS_Store
 dist
 src/sw-cache
+.env
+.env.local

@@ -1,4 +1,5 @@
 const merge = require("webpack-merge");
+const Dotenv = require("dotenv-webpack");
 const common = require("./webpack.common.js");
 const ManifestPlugin = require("webpack-manifest-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
@@ -17,6 +18,7 @@ module.exports = merge(common, {
     contentBase: "./dist"
   },
   plugins: [
+    new Dotenv({ systemvars: true }),
     new CleanWebpackPlugin(["dist"]),
     new CopyWebpackPlugin([
       "./src/manifest.json",
