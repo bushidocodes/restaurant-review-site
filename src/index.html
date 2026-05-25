@@ -4,11 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Restaurant Reviews</title>
-  <!-- Link to the standard Manifest -->
   <link rel="manifest" href="/manifest.json">
-  <!-- Safari Fallbacks -->
   <link rel="apple-mobile-web-app-capable" content="yes">
   <link rel="apple-mobile-web-app-status-bar-style" content="white">
   <link rel="apple-mobile-web-app-title" content="Restaurant Reviews">
@@ -16,9 +13,6 @@
   <link rel="apple-touch-icon" href="/img/icons/apple-touch-icon-76x76.png" sizes="76x76">
   <link rel="apple-touch-icon" href="/img/icons/apple-touch-icon-120x120.png" sizes="120x120">
   <link rel="apple-touch-icon" href="/img/icons/apple-touch-icon-152x152.png" sizes="152x152">
-  <!-- IE11 Metro App Fallbacks -->
-  <meta name="msapplication-TileImage" content="/img/icons/icon-144x144.png">
-  <meta name="msapplication-TileColor" content="#fff">
   <meta name="theme-color" content="#3f51b5">
 </head>
 
@@ -29,7 +23,6 @@
         <a tabindex="0" href="/">Restaurant Reviews</a>
       </h1>
     </div>
-    <!-- Beginning breadcrumb -->
     <nav aria-label="Breadcrumb">
       <ol id="breadcrumb">
         <li>
@@ -38,7 +31,6 @@
       </ol>
     </nav>
     <button tabindex="0" id="maptoggle" type="button" role="button" aria-label="Toggle Google Map" aria-pressed="false">Toggle Map</button>
-    <!-- End s -->
   </header>
 
   <main id="maincontent">
@@ -49,11 +41,11 @@
       <div class="filter-options">
         <h2>Filter Results</h2>
         <label hidden id="neighborhoods-label">Filter Restaurants by Neighborhood</label>
-        <select tabindex="0" id="neighborhoods-select" name="neighborhoods" aria-labelledby="neighborhoods-label" onchange="updateRestaurants()">
+        <select tabindex="0" id="neighborhoods-select" name="neighborhoods" aria-labelledby="neighborhoods-label">
           <option value="all">All Neighborhoods</option>
         </select>
         <label hidden id="cuisines-label">Filter by Cuisine Type</label>
-        <select tabindex="0" id="cuisines-select" name="cuisines" aria-labelledby="cuisines-label" onchange="updateRestaurants()">
+        <select tabindex="0" id="cuisines-select" name="cuisines" aria-labelledby="cuisines-label">
           <option value="all">All Cuisines</option>
         </select>
       </div>
@@ -61,11 +53,9 @@
     </section>
   </main>
 
-
-
   <footer id="footer">
     <div class="center">
-      Copyright (c) 2018
+      Copyright (c) 2026
       <a tabindex="0" href="/">
         <strong>Restaurant Reviews</strong>
       </a> All Rights Reserved.

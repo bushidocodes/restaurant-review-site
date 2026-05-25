@@ -1,12 +1,9 @@
-import * as idb from "idb";
-import "../../node_modules/responsively-lazy/responsivelyLazy.js";
-import "../../node_modules/responsively-lazy/responsivelyLazy.css";
+import "responsively-lazy/responsivelyLazy.js";
+import "responsively-lazy/responsivelyLazy.css";
 import {
   fetchNeighborhoods,
   fetchCuisines,
-  fetchRestaurantByCuisineAndNeighborhood,
-  mapMarkerForRestaurant,
-  updateRestaurant
+  fetchRestaurantByCuisineAndNeighborhood
 } from "./dbhelper";
 
 import "../css/normalize.css";
@@ -16,14 +13,12 @@ import RestaurantList from "./RestaurantList";
 import { render } from "lit-html";
 import { getSelectedCuisineAndNeighborhood } from "./Toolbar";
 
-// Check for Service Worker Support
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/sw.js").then(() => {
     console.log("Service Worker Registered");
   });
 }
 
-// Global State container used to keep track of the Google Map
 window.state = {
   markers: [],
   map: undefined,
@@ -31,121 +26,69 @@ window.state = {
   mapClosed: true
 };
 
-/**
- * Fetch neighborhoods and cuisines as soon as the page is loaded.
- */
-document.addEventListener("DOMContentLoaded", event => {
-  updateRestaurants();
-  fetchAndFillNeighborhoods();
-  fetchAndFillCuisines();
+document.addEventListener("DOMContentLoaded", async () => {
+  await Promise.all([
+    updateRestaurants(),
+    fetchAndFillNeighborhoods(),
+    fetchAndFillCuisines()
+  ]);
+
+  document.getElementById("neighborhoods-select").addEventListener("change", updateRestaurants);
+  document.getElementById("cuisines-select").addEventListener("change", updateRestaurants);
 });
 
-/**
- * Fetch all neighborhoods and set their HTML.
- */
-const fetchAndFillNeighborhoods = () => {
-  fetchNeighborhoods((error, neighborhoods) => {
-    if (error) {
-      // Got an error
-      console.error(error);
-    } else {
-      fillNeighborhoodsHTML(neighborhoods);
-    }
-  });
-};
+async function fetchAndFillNeighborhoods() {
+  try {
+    const neighborhoods = await fetchNeighborhoods();
+    const select = document.getElementById("neighborhoods-select");
+    neighborhoods.forEach(neighborhood => {
+      const option = document.createElement("option");
+      option.innerHTML = neighborhood;
+      option.value = neighborhood;
+      select.append(option);
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
 
-/**
- * Set neighborhoods HTML.
- */
-const fillNeighborhoodsHTML = neighborhoods => {
-  const select = document.getElementById("neighborhoods-select");
-  neighborhoods.forEach(neighborhood => {
-    const option = document.createElement("option");
-    option.innerHTML = neighborhood;
-    option.value = neighborhood;
-    select.append(option);
-  });
-};
+async function fetchAndFillCuisines() {
+  try {
+    const cuisines = await fetchCuisines();
+    const select = document.getElementById("cuisines-select");
+    cuisines.forEach(cuisine => {
+      const option = document.createElement("option");
+      option.innerHTML = cuisine;
+      option.value = cuisine;
+      select.append(option);
+    });
+  } catch (e) {
+    console.error(e);
+  }
+}
 
-/**
- * Fetch all cuisines and set their HTML.
- */
-const fetchAndFillCuisines = () => {
-  fetchCuisines((error, cuisines) => {
-    if (error) {
-      // Got an error!
-      console.error(error);
-    } else {
-      fillCuisinesHTML(cuisines);
-    }
-  });
-};
-
-/**
- * Set cuisines HTML.
- */
-const fillCuisinesHTML = cuisines => {
-  const select = document.getElementById("cuisines-select");
-
-  cuisines.forEach(cuisine => {
-    const option = document.createElement("option");
-    option.innerHTML = cuisine;
-    option.value = cuisine;
-    select.append(option);
-  });
-};
-
-/**
- * Initialize Google map, called from HTML.
- */
 function loadMap() {
-  let loc = {
-    lat: 40.722216,
-    lng: -73.987501
-  };
   initMap(document.getElementById("map"), {
     zoom: 12,
-    center: loc,
+    center: { lat: 40.722216, lng: -73.987501 },
     scrollwheel: false
   }).then(() => updateRestaurants());
 }
 
-/**
- * Update page and map for current restaurants.
- */
-export const updateRestaurants = () => {
+export const updateRestaurants = async () => {
   const { cuisine, neighborhood } = getSelectedCuisineAndNeighborhood();
-  fetchRestaurantByCuisineAndNeighborhood(
-    cuisine,
-    neighborhood,
-    (err, filteredRestaurants) => {
-      if (err) throw err;
-      renderRestaurantList(filteredRestaurants);
-      if (window.state.map) {
-        clearMarkers();
-        setMarkers(filteredRestaurants);
-      }
+  try {
+    const filteredRestaurants = await fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood);
+    const restaurantListMountPoint = document.getElementById("restaurants-list");
+    render(RestaurantList(filteredRestaurants), restaurantListMountPoint);
+    if (window.state.map) {
+      window.state.markers.forEach(m => m.setMap(null));
+      window.state.markers = [];
+      setMarkers(filteredRestaurants);
     }
-  );
-};
-
-// Add to window object so that the HTML selectors can see this
-window.updateRestaurants = updateRestaurants;
-
-/**
- * Remove all map markers.
- */
-const clearMarkers = () => {
-  state.markers.forEach(m => m.setMap(null));
-  state.markers = [];
-};
-
-/**
- * Create all restaurants HTML and add them to the webpage.
- */
-const renderRestaurantList = restaurants => {
-  const restaurantListMountPoint = document.getElementById("restaurants-list");
-  render(RestaurantList(restaurants), restaurantListMountPoint);
+  } catch (e) {
+    console.error(e);
+  }
 };
 
 const toggleMapBtn = document.querySelector("#maptoggle");
@@ -164,6 +107,4 @@ toggleMapBtn.addEventListener("click", () => {
   }
 });
 
-// Trigger any queued reviews
-console.log("[App] sending sync-new-reviews");
 navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews"));
