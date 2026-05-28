@@ -45,9 +45,13 @@ module.exports.cors = {
   * comma-delimited list of hosts (beginning with http:// or https://) or    *
   * "*" to allow all domains CORS access.                                    *
   *                                                                          *
+  * Set CORS_ORIGIN in the environment to the front-end origin(s) that       *
+  * should be allowed to call this API. In production this must be set       *
+  * explicitly — the wildcard default is intentionally absent.               *
+  *                                                                          *
   ***************************************************************************/
 
-  origin: '*',
+  origin: process.env.CORS_ORIGIN || 'http://localhost:8080',
 
   /***************************************************************************
   *                                                                          *
