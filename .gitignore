@@ -5,3 +5,4 @@ src/sw-cache
 .env
 .env.local
 restaurant-server/config/local.js
+**/.tmp/
