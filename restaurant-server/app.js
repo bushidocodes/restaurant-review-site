@@ -24,6 +24,11 @@
 // > Note: This is not required in order to lift, but it is a convenient default.
 process.chdir(__dirname);
 
+if (!process.env.SESSION_SECRET) {
+  console.error('Error: SESSION_SECRET environment variable is required.');
+  process.exit(1);
+}
+
 // Attempt to import `sails`.
 var sails;
 try {
