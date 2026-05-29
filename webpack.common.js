@@ -19,7 +19,7 @@ module.exports = {
       },
       {
         test: /\.(svg|gif)$/,
-        use: ["file-loader"]
+        type: "asset/resource"
       }
     ]
   }
