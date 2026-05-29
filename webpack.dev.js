@@ -61,7 +61,10 @@ module.exports = merge(common, {
       },
       {
         test: /\.(jpg|png)$/i,
-        loader: "responsive-loader"
+        loader: "responsive-loader",
+        options: {
+          adapter: require("responsive-loader/jimp")
+        }
       }
     ]
   }
