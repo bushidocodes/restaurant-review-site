@@ -76,10 +76,14 @@ export async function postReviewViaSyncManager(body) {
 }
 
 export async function postReview(body) {
-  if ("serviceWorker" in navigator && "SyncManager" in window) {
-    return postReviewViaSyncManager(body);
+  try {
+    return await postReviewDirectly(body);
+  } catch (e) {
+    if ("serviceWorker" in navigator && "SyncManager" in window) {
+      return postReviewViaSyncManager(body);
+    }
+    throw e;
   }
-  return postReviewDirectly(body);
 }
 
 export async function postReviewDirectly(body) {
