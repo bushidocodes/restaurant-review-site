@@ -195,10 +195,7 @@ function syncNewReviews() {
           .then(resBody => {
             // and delete the review from the sync-reviews store if successful
             console.log(`[SW] Synced review with server`, resBody);
-            return deleteItem("sync-reviews", [
-              resBody.name,
-              resBody.restaurant_id
-            ]);
+            return deleteItem("sync-reviews", review.localId);
           })
           .catch(err => {
             console.log(`[SW] Error syncing review ${review.name}`, err);
