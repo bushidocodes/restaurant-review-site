@@ -1,8 +1,7 @@
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
 const Dotenv = require("dotenv-webpack");
 const common = require("./webpack.common.js");
-const ManifestPlugin = require("webpack-manifest-plugin");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { InjectManifest } = require("workbox-webpack-plugin");
@@ -10,21 +9,23 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = merge(common, {
   mode: "development",
+  devtool: "cheap-module-source-map",
   entry: {
     main: path.resolve(__dirname, "src", "js", "main.js"),
     restaurantInfo: "./src/js/restaurant_info.js"
   },
   devServer: {
-    contentBase: "./dist"
+    static: "./dist"
   },
   plugins: [
     new Dotenv({ systemvars: true }),
-    new CleanWebpackPlugin(["dist"]),
-    new CopyWebpackPlugin([
-      "./src/manifest.json",
-      { from: "./src/img/icons/*", to: "./img/icons/", flatten: true },
-      { from: "./src/img/icons/icon-96x96.png", to: "./favicon.ico", toType: "file" }
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "./src/manifest.json" },
+        { from: "./src/img/icons", to: "img/icons" },
+        { from: "./src/img/icons/icon-96x96.png", to: "favicon.ico", toType: "file" }
+      ]
+    }),
     new HtmlWebpackPlugin({
       template: "./src/index.html",
       inject: true,
@@ -37,12 +38,12 @@ module.exports = merge(common, {
       chunks: ["restaurantInfo"],
       filename: "restaurant.html"
     }),
-    new ManifestPlugin(),
+    new WebpackManifestPlugin({ fileName: "asset-manifest.json" }),
     new InjectManifest({
       include: [/\.html$/, /\.css$/, /\.js$/],
-      swSrc: "./src/sw-cache/sw.base.js",
-      swDest: "sw.js",
-      importWorkboxFrom: "local"
+      additionalManifestEntries: [{ url: "/manifest.json", revision: null }],
+      swSrc: "./src/sw.base.mjs",
+      swDest: "sw.js"
     })
   ],
   module: {

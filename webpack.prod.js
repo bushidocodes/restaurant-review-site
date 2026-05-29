@@ -1,48 +1,41 @@
-const merge = require("webpack-merge");
+const { merge } = require("webpack-merge");
 const Dotenv = require("dotenv-webpack");
 const common = require("./webpack.common.js");
 const { InjectManifest } = require("workbox-webpack-plugin");
 
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const ManifestPlugin = require("webpack-manifest-plugin");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
-const OptimizeCSSAssetsPlugin = require("optimize-css-assets-webpack-plugin");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const HtmlWebpackInlineSourcePlugin = require("html-webpack-inline-source-plugin");
+const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCSSExtractPlugin = require("mini-css-extract-plugin");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 
 module.exports = merge(common, {
   mode: "production",
   optimization: {
     minimizer: [
-      new UglifyJsPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: true // set to true if you want JS source maps
-      }),
-      new OptimizeCSSAssetsPlugin({})
+      "...",
+      new CssMinimizerPlugin()
     ]
   },
   output: {
     path: path.resolve(__dirname, "dist"),
     publicPath: "/",
-    filename: "[name].js"
+    filename: "[name].js",
+    clean: true
   },
   plugins: [
     new Dotenv({ systemvars: true }),
-    new CleanWebpackPlugin(["dist"]),
-    new CopyWebpackPlugin([
-      "./src/manifest.json",
-      { from: "./src/img/icons/*", to: "./img/icons/", flatten: true },
-      { from: "./src/img/icons/icon-96x96.png", to: "./favicon.ico", toType: "file" }
-    ]),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: "./src/manifest.json" },
+        { from: "./src/img/icons", to: "img/icons" },
+        { from: "./src/img/icons/icon-96x96.png", to: "favicon.ico", toType: "file" }
+      ]
+    }),
     new HtmlWebpackPlugin({
-      chunks: ["main", "main~restaurantInfo"],
+      chunks: ["main"],
       filename: "index.html",
-      inlineSource: ".(css)$",
       minify: {
         removeComments: true,
         collapseWhitespace: true,
@@ -59,9 +52,8 @@ module.exports = merge(common, {
     }),
     new HtmlWebpackPlugin({
       inject: true,
-      chunks: ["restaurantInfo", "main~restaurantInfo"],
+      chunks: ["restaurantInfo"],
       filename: "restaurant.html",
-      inlineSource: ".(css)$",
       minify: {
         removeComments: true,
         collapseWhitespace: true,
@@ -76,8 +68,7 @@ module.exports = merge(common, {
       },
       template: "./src/restaurant.html"
     }),
-    new HtmlWebpackInlineSourcePlugin(),
-    new ManifestPlugin({
+    new WebpackManifestPlugin({
       fileName: "asset-manifest.json"
     }),
     new MiniCSSExtractPlugin({
@@ -85,9 +76,9 @@ module.exports = merge(common, {
     }),
     new InjectManifest({
       include: [/\.html$/, /\.css$/, /\.js$/],
-      swSrc: "./src/sw-cache/sw.base.js",
-      swDest: "sw.js",
-      importWorkboxFrom: "local"
+      additionalManifestEntries: [{ url: "/manifest.json", revision: null }],
+      swSrc: "./src/sw.base.mjs",
+      swDest: "sw.js"
     })
   ],
   module: {
@@ -102,7 +93,6 @@ module.exports = merge(common, {
           {
             loader: "responsive-loader",
             options: {
-              // If you want to enable sharp support:
               adapter: require("responsive-loader/jimp"),
               sizes: [300, 600]
             }
