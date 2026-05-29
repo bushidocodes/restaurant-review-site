@@ -159,9 +159,7 @@ const CRM = new CreateReviewModal({
   restaurantID: getParam("id"),
   onSubmit: async postBody => {
     await postReview(postBody);
-    if (!("SyncManager" in window)) {
-      window.setTimeout(() => fetchReviewsFromURL(), 500);
-    }
+    window.setTimeout(() => fetchReviewsFromURL(), 500);
   }
 });
 
