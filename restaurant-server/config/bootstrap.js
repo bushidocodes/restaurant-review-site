@@ -2,16 +2,30 @@
  * Bootstrap
  * (sails.config.bootstrap)
  *
- * An asynchronous bootstrap function that runs before your Sails app gets lifted.
- * This gives you an opportunity to set up your data model, run jobs, or perform some special logic.
+ * An asynchronous bootstrap function that runs just before your Sails app gets lifted.
+ *
+ * Seeds the file-based (`sails-disk`) datastore with the initial restaurants and
+ * reviews the first time the app is lifted against an empty database. IDs (and the
+ * ISO-8601 string timestamps the front-end expects) are preserved from the seed file.
  *
  * For more information on bootstrapping your app, check out:
- * http://sailsjs.org/#!/documentation/reference/sails.config/sails.config.bootstrap.html
+ * https://sailsjs.com/config/bootstrap
  */
 
-module.exports.bootstrap = function(cb) {
+const seed = require('./seed-data.json');
 
-  // It's very important to trigger this callback method when you are finished
-  // with the bootstrap!  (otherwise your server will never lift, since it's waiting on the bootstrap)
-  cb();
+module.exports.bootstrap = async function() {
+
+  // Only seed an empty datastore, so manual edits and subsequent lifts are preserved.
+  if (await sails.models.restaurants.count() > 0) {
+    return;
+  }
+
+  sails.log.info('Empty datastore detected — seeding restaurants and reviews...');
+
+  await sails.models.restaurants.createEach(seed.restaurants);
+  await sails.models.reviews.createEach(seed.reviews);
+
+  sails.log.info(`Seeded ${seed.restaurants.length} restaurants and ${seed.reviews.length} reviews.`);
+
 };
