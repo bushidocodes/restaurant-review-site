@@ -34,7 +34,12 @@ export default class CreateReviewModal {
     const name = document.querySelector("#name").value;
     const rating = document.querySelector("#rating").value;
     const comments = document.querySelector("#comments").value;
-    return { name, restaurant_id: this.restaurantID, rating, comments };
+    return {
+      name,
+      restaurant_id: Number(this.restaurantID),
+      rating: Number(rating),
+      comments
+    };
   }
 
   clearFormState() {
