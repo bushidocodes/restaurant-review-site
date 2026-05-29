@@ -1,15 +1,16 @@
 import * as idb from "idb";
 
-const dbPromise = idb.open("restaurants-store", 6, db => {
+const dbPromise = idb.open("restaurants-store", 7, db => {
   if (!db.objectStoreNames.contains("restaurants")) {
     db.createObjectStore("restaurants", { keyPath: "id" });
   }
   if (!db.objectStoreNames.contains("reviews")) {
     db.createObjectStore("reviews", { keyPath: "id" });
   }
-  if (!db.objectStoreNames.contains("sync-reviews")) {
-    db.createObjectStore("sync-reviews", { keyPath: ["name", "restaurant_id"] });
+  if (db.objectStoreNames.contains("sync-reviews")) {
+    db.deleteObjectStore("sync-reviews");
   }
+  db.createObjectStore("sync-reviews", { keyPath: "localId", autoIncrement: true });
 });
 
 export async function writeItem(storeName, item) {
