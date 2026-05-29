@@ -9,6 +9,7 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = merge(common, {
   mode: "development",
+  devtool: "cheap-module-source-map",
   entry: {
     main: path.resolve(__dirname, "src", "js", "main.js"),
     restaurantInfo: "./src/js/restaurant_info.js"
@@ -37,9 +38,10 @@ module.exports = merge(common, {
       chunks: ["restaurantInfo"],
       filename: "restaurant.html"
     }),
-    new WebpackManifestPlugin(),
+    new WebpackManifestPlugin({ fileName: "asset-manifest.json" }),
     new InjectManifest({
       include: [/\.html$/, /\.css$/, /\.js$/],
+      additionalManifestEntries: [{ url: "/manifest.json", revision: null }],
       swSrc: "./src/sw.base.mjs",
       swDest: "sw.js"
     })

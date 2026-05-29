@@ -13,8 +13,7 @@ import { postReviewDirectly } from "./js/dbhelper.js";
 
 const SERVER = `http://localhost:1337`;
 
-// Inject precache manifest — self.__WB_MANIFEST is replaced by InjectManifest
-precacheAndRoute([{ url: "/manifest.json", revision: null }, ...self.__WB_MANIFEST]);
+precacheAndRoute(self.__WB_MANIFEST);
 
 // Cache Google fonts and map tiles
 registerRoute(

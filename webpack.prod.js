@@ -76,6 +76,7 @@ module.exports = merge(common, {
     }),
     new InjectManifest({
       include: [/\.html$/, /\.css$/, /\.js$/],
+      additionalManifestEntries: [{ url: "/manifest.json", revision: null }],
       swSrc: "./src/sw.base.mjs",
       swDest: "sw.js"
     })
