@@ -5,13 +5,12 @@
   "description": "a Sails application",
   "keywords": [],
   "dependencies": {
-    "include-all": "^1.0.0",
-    "rc": "1.0.1",
-    "sails": "^0.12.13",
-    "sails-disk": "~0.10.9"
+    "sails": "^1.5.18",
+    "sails-disk": "^2.1.2",
+    "sails-hook-orm": "^4.0.3"
   },
   "scripts": {
-    "debug": "node debug app.js",
+    "debug": "node --inspect app.js",
     "start": "node app.js"
   },
   "main": "app.js",

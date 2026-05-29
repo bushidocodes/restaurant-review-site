@@ -95,7 +95,7 @@ export async function postReviewDirectly(body) {
 export async function fetchReviewsForRestaurant(restaurantID) {
   const id = Number(restaurantID);
   const draftReviews = await getItems("sync-reviews").then(items =>
-    items.filter(r => r.restaurant_id === id).map(r => ({ ...r, isDraft: true }))
+    items.filter(r => Number(r.restaurant_id) === id).map(r => ({ ...r, isDraft: true }))
   );
 
   try {

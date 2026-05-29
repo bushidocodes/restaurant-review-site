@@ -1,32 +1,45 @@
 /**
- * Default model configuration
+ * Default model settings
  * (sails.config.models)
  *
- * Unless you override them, the following properties will be included
- * in each of your models.
+ * Unless overridden, the properties below are inherited by every model.
  *
  * For more info on Sails models, see:
- * http://sailsjs.org/#!/documentation/concepts/ORM
+ * https://sailsjs.com/config/models
  */
 
 module.exports.models = {
 
   /***************************************************************************
   *                                                                          *
-  * Your app's default connection. i.e. the name of one of your app's        *
-  * connections (see `config/connections.js`)                                *
+  * The default datastore for every model (see `config/datastores.js`).      *
   *                                                                          *
   ***************************************************************************/
-  // connection: 'localDiskDb',
+  datastore: 'default',
 
   /***************************************************************************
   *                                                                          *
   * How and whether Sails will attempt to automatically rebuild the          *
-  * tables/collections/etc. in your schema.                                  *
-  *                                                                          *
-  * See http://sailsjs.org/#!/documentation/concepts/ORM/model-settings.html  *
+  * tables/collections/etc. in your schema. `sails-disk` only supports        *
+  * 'alter'/'drop'. See https://sailsjs.com/docs/concepts/models-and-orm/    *
+  * model-settings#?migrate                                                   *
   *                                                                          *
   ***************************************************************************/
-   migrate: 'alter'
+  migrate: 'alter',
+
+  /***************************************************************************
+  *                                                                          *
+  * Base attributes inherited by all models: an auto-incrementing numeric     *
+  * primary key plus ISO-8601 string timestamps (kept as strings so the       *
+  * front-end's `new Date(...)` / `Date.parse(...)` calls keep working).      *
+  *                                                                          *
+  ***************************************************************************/
+  attributes: {
+    id: { type: 'number', autoIncrement: true },
+    createdAt: { type: 'string', autoCreatedAt: true },
+    updatedAt: { type: 'string', autoUpdatedAt: true },
+  },
+
+  primaryKey: 'id',
 
 };
