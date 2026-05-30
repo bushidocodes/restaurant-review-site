@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "--- #### _Three Stage Course Material Project - Restaurant Reviews_",
   "private": true,
-  "packageManager": "pnpm@11.5.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:ui": "webpack serve --open --config webpack.dev.js",
