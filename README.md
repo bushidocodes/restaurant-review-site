@@ -6,13 +6,12 @@
 
 ### How to run
 
-I've included the Node backend in this repo to better guarantee consistent behavior
+I've included the Node backend in this repo to better guarantee consistent behavior. The
+repo is a pnpm workspace (root UI + `restaurant-server` API), so a single `pnpm install`
+covers both projects.
 
 ```
 pnpm install
-cd restaurant-server
-pnpm install
-cd ..
 pnpm start
 ```
 
