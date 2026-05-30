@@ -32,7 +32,10 @@ registerRoute(
 // Redirect restaurant detail routes to pre-cached restaurant.html
 registerRoute(
   /restaurant\.html\?id=[0-9]+/,
-  () => caches.match("/restaurant.html")
+  async () => {
+    const cached = await caches.match("/restaurant.html");
+    return cached ?? fetch("/restaurant.html");
+  }
 );
 
 // Cache restaurant images
