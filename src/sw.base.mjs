@@ -1,6 +1,6 @@
 import { registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate } from "workbox-strategies";
-import { precacheAndRoute } from "workbox-precaching";
+import { precacheAndRoute, matchPrecache } from "workbox-precaching";
 import { ExpirationPlugin } from "workbox-expiration";
 import {
   deleteItem,
@@ -32,7 +32,10 @@ registerRoute(
 // Redirect restaurant detail routes to pre-cached restaurant.html
 registerRoute(
   /restaurant\.html\?id=[0-9]+/,
-  () => caches.match("/restaurant.html")
+  async () => {
+    const cached = await matchPrecache("/restaurant.html");
+    return cached ?? fetch("/restaurant.html");
+  }
 );
 
 // Cache restaurant images
