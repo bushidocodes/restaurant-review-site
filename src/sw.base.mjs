@@ -146,6 +146,7 @@ const SUBMIT_REVIEWS_TIMEOUT = 1000;
 let notifiedClient = false;
 
 function syncNewReviews() {
+  notifiedClient = false;
   return getItems("sync-reviews").then(reviews => {
     if (reviews && reviews.length > 0) {
       const arrOfPromises = reviews.map(review => {
