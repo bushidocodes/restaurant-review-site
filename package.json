@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "--- #### _Three Stage Course Material Project - Restaurant Reviews_",
   "private": true,
+  "packageManager": "pnpm@11.5.0",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:ui": "webpack serve --open --config webpack.dev.js",
@@ -10,7 +11,7 @@
     "serve:api": "node restaurant-server/app.js",
     "start:dev": "npm-run-all --parallel dev:ui serve:api",
     "start:prod": "npm-run-all build:ui --parallel serve:api serve:ui",
-    "start": "npm run start:prod",
+    "start": "pnpm run start:prod",
     "build:ui": "webpack --config webpack.prod.js"
   },
   "repository": {
