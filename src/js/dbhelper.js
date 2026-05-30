@@ -71,8 +71,13 @@ export async function fetchCuisines() {
 
 export async function postReviewViaSyncManager(body) {
   await writeItem("sync-reviews", body);
-  const sw = await navigator.serviceWorker.ready;
-  await sw.sync.register("sync-new-reviews");
+  try {
+    const sw = await navigator.serviceWorker.ready;
+    await sw.sync.register("sync-new-reviews");
+  } catch (e) {
+    // SW not yet activated; draft is in IDB and will sync on next activation
+    console.warn("[App] Background sync registration failed; draft saved locally:", e.message);
+  }
 }
 
 export async function postReview(body) {
