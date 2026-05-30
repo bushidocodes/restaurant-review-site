@@ -146,7 +146,8 @@ function syncNewReviews() {
   return getItems("sync-reviews").then(reviews => {
     if (reviews && reviews.length > 0) {
       const arrOfPromises = reviews.map(review => {
-        return postReviewDirectly(review)
+        const { localId, ...reviewBody } = review;
+        return postReviewDirectly(reviewBody)
           .then(resBody => {
             console.log(`[SW] Synced review with server`, resBody);
             return deleteItem("sync-reviews", review.localId);
