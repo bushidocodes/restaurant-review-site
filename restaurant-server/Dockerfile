@@ -20,4 +20,6 @@ WORKDIR /app/restaurant-server
 
 EXPOSE 1337
 
+# Required at runtime: SESSION_SECRET
+# docker run -e SESSION_SECRET=<value> ...
 CMD ["node", "server"]

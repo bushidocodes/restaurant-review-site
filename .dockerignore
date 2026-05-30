@@ -1,0 +1,15 @@
+# Dependency directories — pnpm installs these inside the container
+node_modules
+restaurant-server/node_modules
+
+# Frontend source and build output — not needed for the server image
+src
+dist
+
+# Sails temp files
+.tmp
+restaurant-server/.tmp
+
+# Version control and tooling
+.git
+.claude
