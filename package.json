@@ -10,7 +10,7 @@
     "serve:api": "node restaurant-server/app.js",
     "start:dev": "npm-run-all --parallel dev:ui serve:api",
     "start:prod": "npm-run-all build:ui --parallel serve:api serve:ui",
-    "start": "npm run start:prod",
+    "start": "pnpm run start:prod",
     "build:ui": "webpack --config webpack.prod.js"
   },
   "repository": {
