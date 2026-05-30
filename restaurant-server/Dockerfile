@@ -1,16 +1,25 @@
-FROM node:18
+FROM node:24
 
-# Set the working directory to /app
+RUN corepack enable
+
 WORKDIR /app
 
-# Install project dependencies first to leverage Docker layer caching
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+# Copy workspace manifests, lockfile, and npmrc for layer caching.
+# Build context must be the monorepo root so pnpm-lock.yaml is accessible:
+#   docker build -f restaurant-server/Dockerfile .
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY restaurant-server/package.json ./restaurant-server/
 
-# Copy the rest of the application source
-COPY . .
+# Install only production dependencies for this workspace package
+RUN pnpm install --prod --frozen-lockfile --filter Restaurant-Reviews
+
+# Copy the application source
+COPY restaurant-server/ ./restaurant-server/
+
+WORKDIR /app/restaurant-server
 
 EXPOSE 1337
 
-# Start the server when the container launches
+# Required at runtime: SESSION_SECRET
+# docker run -e SESSION_SECRET=<value> ...
 CMD ["node", "server"]
