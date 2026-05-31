@@ -128,11 +128,3 @@ export function urlForRestaurant(restaurant) {
   return `./restaurant.html?id=${restaurant.id}`;
 }
 
-export function mapMarkerForRestaurant(restaurant, map) {
-  return new google.maps.Marker({
-    position: restaurant.latlng,
-    title: restaurant.name,
-    url: urlForRestaurant(restaurant),
-    map
-  });
-}

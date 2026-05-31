@@ -15,7 +15,10 @@ module.exports = merge(common, {
     restaurantInfo: "./src/js/restaurant_info.js"
   },
   devServer: {
-    static: "./dist"
+    static: "./dist",
+    client: {
+      overlay: { warnings: false, errors: true }
+    }
   },
   plugins: [
     new Dotenv({ systemvars: true }),
@@ -62,6 +65,7 @@ module.exports = merge(common, {
       },
       {
         test: /\.(jpg|png)$/i,
+        exclude: /node_modules/,
         loader: "responsive-loader",
         options: {
           adapter: require("responsive-loader/jimp")

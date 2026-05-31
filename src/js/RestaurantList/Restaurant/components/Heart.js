@@ -9,7 +9,7 @@ function Heart(height, width, isFavorite) {
     y="0px"
     width="${width}px"
     height="${height}px"
-    viewBox="0 0 32 29.6"
+    viewBox="-1 -1 34 31.6"
     fill="${isFavorite ? "red" : "transparent"}"
     stroke="black"
     >

@@ -1,44 +1,45 @@
-import GoogleMapsLoader from "google-maps";
-import { mapMarkerForRestaurant } from "./dbhelper";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import markerIcon from "leaflet/dist/images/marker-icon.png";
+import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
+import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import { urlForRestaurant } from "./dbhelper";
 
-const API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
+// Fix Leaflet's default icon paths broken by webpack's asset bundling
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow
+});
 
-if (!API_KEY) {
-  console.warn(
-    "GOOGLE_MAPS_API_KEY is not set. Set it in your environment before building; see .env.example."
-  );
+export function mapMarkerForRestaurant(restaurant, map) {
+  return L.marker([restaurant.latlng.lat, restaurant.latlng.lng], {
+    title: restaurant.name
+  })
+    .on("click", () => {
+      window.location.href = urlForRestaurant(restaurant);
+    })
+    .addTo(map);
 }
-
-GoogleMapsLoader.KEY = API_KEY;
 
 export function initMap(el, options) {
-  return new Promise(function(resolve, reject) {
-    try {
-      GoogleMapsLoader.load(function(google) {
-        window.state.map = new google.maps.Map(el, options);
-        window.google = google;
-        if (window.state.map && window.google) {
-          resolve(window.state.map);
-        } else {
-          reject("Unable to load Google Maps as expected");
-        }
-      });
-    } catch (e) {
-      reject(e);
-    }
+  const { lat, lng } = options.center;
+  const map = L.map(el, {
+    zoom: options.zoom,
+    center: [lat, lng],
+    scrollWheelZoom: false
   });
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map);
+  window.state.map = map;
+  return Promise.resolve(map);
 }
 
-/**
- * Add markers for current restaurants to the map.
- */
 export const setMarkers = (restaurants, map = window.state.map) => {
   restaurants.forEach(restaurant => {
-    // Add marker to the map
     const marker = mapMarkerForRestaurant(restaurant, map);
-    window.google.maps.event.addListener(marker, "click", () => {
-      window.location.href = marker.url;
-    });
     window.state.markers.push(marker);
   });
 };

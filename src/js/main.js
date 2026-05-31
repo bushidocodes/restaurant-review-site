@@ -82,7 +82,7 @@ export const updateRestaurants = async () => {
     const restaurantListMountPoint = document.getElementById("restaurants-list");
     render(RestaurantList(filteredRestaurants), restaurantListMountPoint);
     if (window.state.map) {
-      window.state.markers.forEach(m => m.setMap(null));
+      window.state.markers.forEach(m => m.remove());
       window.state.markers = [];
       setMarkers(filteredRestaurants);
     }
@@ -99,7 +99,7 @@ toggleMapBtn.addEventListener("click", () => {
     mapContainer.style.height = "50vh";
     window.state.mapClosed = false;
     toggleMapBtn.setAttribute("aria-pressed", "true");
-    loadMap();
+    if (!window.state.map) loadMap();
   } else {
     mapContainer.style.height = "0vh";
     window.state.mapClosed = true;
@@ -107,4 +107,4 @@ toggleMapBtn.addEventListener("click", () => {
   }
 });
 
-navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews"));
+navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews")).catch(() => {});
