@@ -1,6 +1,6 @@
 import { getItems, getItem, writeItem } from "./utils";
 
-const SERVER = process.env.API_SERVER || "http://localhost:1337";
+const SERVER = import.meta.env.API_SERVER || "http://localhost:1337";
 
 export async function fetchRestaurants() {
   try {

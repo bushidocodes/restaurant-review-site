@@ -12,9 +12,12 @@ import "../css/styles.css";
 import { html, render } from "lit-html";
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").then(() => {
-    console.log("[App] Service Worker Registered");
-  });
+  // `type: "module"` — vite-plugin-pwa emits an ES-module service worker
+  // (unbundled in dev, `es` format in the build).
+  navigator.serviceWorker
+    .register("/sw.js", { type: "module" })
+    .then(() => console.log("[App] Service Worker Registered"))
+    .catch(err => console.warn("[App] Service Worker registration failed:", err));
 }
 
 window.state = {

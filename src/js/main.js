@@ -14,9 +14,12 @@ import { render } from "lit-html";
 import { getSelectedCuisineAndNeighborhood } from "./Toolbar";
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").then(() => {
-    console.log("Service Worker Registered");
-  });
+  // `type: "module"` — vite-plugin-pwa emits an ES-module service worker
+  // (unbundled in dev, `es` format in the build).
+  navigator.serviceWorker
+    .register("/sw.js", { type: "module" })
+    .then(() => console.log("Service Worker Registered"))
+    .catch(err => console.warn("Service Worker registration failed:", err));
 }
 
 window.state = {

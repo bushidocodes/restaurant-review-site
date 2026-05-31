@@ -1,3 +1,5 @@
 packages:
   - '.'
   - 'restaurant-server'
+allowBuilds:
+  sharp: true
