@@ -45,7 +45,8 @@ function loadMap() {
     center: window.state.restaurant.latlng,
     scrollwheel: false
   }).then(() => {
-    mapMarkerForRestaurant(window.state.restaurant, window.state.map);
+    const marker = mapMarkerForRestaurant(window.state.restaurant, window.state.map);
+    window.state.markers.push(marker);
   });
 }
 
