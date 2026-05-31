@@ -6,17 +6,18 @@ import {
   fetchRestaurantByCuisineAndNeighborhood
 } from "./dbhelper";
 
-import "../css/normalize.css";
-import "../css/styles.css";
 import { initMap, setMarkers } from "./mapsLoader";
 import RestaurantList from "./RestaurantList";
 import { render } from "lit-html";
 import { getSelectedCuisineAndNeighborhood } from "./Toolbar";
 
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("/sw.js").then(() => {
-    console.log("Service Worker Registered");
-  });
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  // SW ships only in the production build; `type: "module"` matches the `es`
+  // worker vite-plugin-pwa emits. (No SW in dev — avoids stale precache serving.)
+  navigator.serviceWorker
+    .register("/sw.js", { type: "module" })
+    .then(() => console.log("Service Worker Registered"))
+    .catch(err => console.warn("Service Worker registration failed:", err));
 }
 
 window.state = {

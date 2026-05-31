@@ -9,9 +9,9 @@
     },
     {
       "name": "dev",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["webpack", "serve", "--config", "webpack.dev.js", "--port", "8081"],
-      "port": 8081,
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "dev:ui"],
+      "port": 5173,
       "autoPort": false
     },
     {

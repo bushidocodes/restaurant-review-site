@@ -5,7 +5,7 @@ import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { urlForRestaurant } from "./dbhelper";
 
-// Fix Leaflet's default icon paths broken by webpack's asset bundling
+// Fix Leaflet's default icon paths broken by the bundler's asset hashing
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: markerIcon,

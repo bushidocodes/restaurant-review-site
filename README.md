@@ -40,7 +40,18 @@ rm -rf restaurant-server/.tmp/localDiskDb
 pnpm run serve:api
 ```
 
-Please note that I'm using Webpack twice, first to bundle my service worker and then to bundle and build my entire app. I do two separate passes because the service worker needs to be built and bundled before being used by Workbox's `InjectManifest` plugin. I did considerable research to see if there was a cleaner solution to using ESM modules in my service worker in conjuction with Workbox and Webpack, and I didn't really find anything.
+#### Build tooling
+
+The front end is built with [Vite](https://vitejs.dev/) (`vite.config.js`). It's a multi-page
+app — `src/index.html` and `src/restaurant.html` are the two entry points. `pnpm run dev:ui`
+starts the Vite dev server (with HMR); `pnpm run build:ui` emits the production bundle to `dist/`,
+which `serve.js` serves.
+
+The service worker (`src/sw.js`) is a hand-written Workbox service worker. [`vite-plugin-pwa`](https://vite-pwa-org.netlify.app/)
+runs it through the `injectManifest` strategy: it compiles the worker and injects the precache
+manifest into `self.__WB_MANIFEST`, so the ESM `workbox-*` imports work without a separate build
+pass. Responsive restaurant images are generated at build time by
+[`vite-imagetools`](https://github.com/JonasKruckenberg/imagetools) (see `src/js/imageLoader.js`).
 
 I've included my Lighthouse Report in case we have differing results.
 On my last run, I got
