@@ -89,6 +89,7 @@ module.exports = merge(common, {
       },
       {
         test: /\.(jpg|png)$/i,
+        exclude: /node_modules/,
         use: [
           {
             loader: "responsive-loader",

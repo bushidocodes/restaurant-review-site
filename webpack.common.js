@@ -20,6 +20,11 @@ module.exports = {
       {
         test: /\.(svg|gif)$/,
         type: "asset/resource"
+      },
+      {
+        test: /\.(png|jpg)$/,
+        include: /node_modules/,
+        type: "asset/resource"
       }
     ]
   }

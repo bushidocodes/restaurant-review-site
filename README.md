@@ -25,7 +25,6 @@ Copy `.env.example` to `.env` and fill in the values before starting:
 
 | Variable | Purpose | Example |
 |---|---|---|
-| `GOOGLE_MAPS_API_KEY` | Google Maps embed | *(your key)* |
 | `SESSION_SECRET` | Sails session signing — **required** to start the API | any random string |
 | `CORS_ORIGIN` | Allowed front-end origin for the API | `http://localhost:7000` |
 | `API_SERVER` | Front-end base URL for the API | `http://localhost:1337` |

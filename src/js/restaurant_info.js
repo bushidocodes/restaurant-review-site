@@ -1,11 +1,10 @@
 import {
-  mapMarkerForRestaurant,
   fetchRestaurantById,
   fetchReviewsForRestaurant,
   postReview
 } from "./dbhelper";
 import { getImage } from "./imageLoader";
-import { initMap } from "./mapsLoader";
+import { initMap, mapMarkerForRestaurant } from "./mapsLoader";
 import CreateReviewModal from "./CreateReviewModal";
 
 import "../css/normalize.css";
@@ -182,7 +181,7 @@ toggleMapBtn.addEventListener("click", () => {
     mapContainer.style.height = "50vh";
     window.state.mapClosed = false;
     toggleMapBtn.setAttribute("aria-pressed", "true");
-    loadMap();
+    if (!window.state.map) loadMap();
   } else {
     mapContainer.style.height = "0vh";
     window.state.mapClosed = true;
@@ -190,4 +189,4 @@ toggleMapBtn.addEventListener("click", () => {
   }
 });
 
-navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews"));
+navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews")).catch(() => {});
