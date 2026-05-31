@@ -43,11 +43,10 @@ export default defineConfig({
         // sw.js), matching the previous webpack InjectManifest scope.
         globPatterns: ["**/*.{js,css,html}", "manifest.json"]
       },
-      devOptions: {
-        enabled: true,
-        type: "module",
-        navigateFallback: "index.html"
-      }
+      // No service worker in dev: the precaching SW serves stale navigations,
+      // masking source edits and interfering with HMR. It's exercised in the
+      // production build instead (the app only registers it when PROD).
+      devOptions: { enabled: false }
     })
   ]
 });

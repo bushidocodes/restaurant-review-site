@@ -7,13 +7,11 @@ import { getImage } from "./imageLoader";
 import { initMap, mapMarkerForRestaurant } from "./mapsLoader";
 import CreateReviewModal from "./CreateReviewModal";
 
-import "../css/normalize.css";
-import "../css/styles.css";
 import { html, render } from "lit-html";
 
-if ("serviceWorker" in navigator) {
-  // `type: "module"` — vite-plugin-pwa emits an ES-module service worker
-  // (unbundled in dev, `es` format in the build).
+if ("serviceWorker" in navigator && import.meta.env.PROD) {
+  // SW ships only in the production build; `type: "module"` matches the `es`
+  // worker vite-plugin-pwa emits. (No SW in dev — avoids stale precache serving.)
   navigator.serviceWorker
     .register("/sw.js", { type: "module" })
     .then(() => console.log("[App] Service Worker Registered"))
