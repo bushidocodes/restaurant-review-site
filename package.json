@@ -41,7 +41,7 @@
     "workbox-window": "^7.4.1"
   },
   "dependencies": {
-    "idb": "^2.1.1",
+    "idb": "^8.0.0",
     "leaflet": "^1.9.4",
     "lit-html": "^0.10.0",
     "responsively-lazy": "^2.0.2"
