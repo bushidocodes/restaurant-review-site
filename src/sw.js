@@ -11,18 +11,19 @@ import {
 } from "./js/utils.js";
 import { postReviewDirectly } from "./js/dbhelper.js";
 
-const SERVER = `http://localhost:1337`;
+const SERVER = import.meta.env.API_SERVER || "http://localhost:1337";
+const SERVER_ORIGIN = new URL(SERVER).origin;
 
 precacheAndRoute(self.__WB_MANIFEST);
 
-// Cache Google fonts and map tiles
+// Cache OpenStreetMap tiles for offline map support
 registerRoute(
-  /.*(?:googleapis|gstatic)\.com.*$/,
+  ({ url }) => url.hostname.endsWith(".tile.openstreetmap.org"),
   new StaleWhileRevalidate({
-    cacheName: "google-maps",
+    cacheName: "map-tiles",
     plugins: [
       new ExpirationPlugin({
-        maxEntries: 3,
+        maxEntries: 500,
         maxAgeSeconds: 60 * 60 * 24 * 30
       })
     ]
@@ -74,7 +75,9 @@ registerRoute(
 );
 
 // Intercept individual restaurant fetches — update IDB as a side effect
-const restaurantByIDMatcher = /http:\/\/localhost:1337\/restaurants\/[0-9]+/;
+const restaurantByIDMatcher = ({ url }) =>
+  url.origin === SERVER_ORIGIN && /^\/restaurants\/[0-9]+$/.test(url.pathname);
+
 const restaurantByIDHandler = async ({ event }) => {
   try {
     const res = await fetch(event.request);
@@ -97,7 +100,10 @@ registerRoute(restaurantByIDMatcher, restaurantByIDHandler, "POST");
 
 // Intercept reviews list — update IDB as a side effect
 registerRoute(
-  /http:\/\/localhost:1337\/reviews\/\?restaurant_id=[0-9]+/,
+  ({ url }) =>
+    url.origin === SERVER_ORIGIN &&
+    url.pathname === "/reviews/" &&
+    url.searchParams.has("restaurant_id"),
   async ({ event }) => {
     try {
       const res = await fetch(event.request);
