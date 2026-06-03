@@ -1,23 +1,29 @@
-import * as idb from "idb";
+import { openDB } from "idb";
 
-const dbPromise = idb.open("restaurants-store", 7, db => {
-  if (!db.objectStoreNames.contains("restaurants")) {
-    db.createObjectStore("restaurants", { keyPath: "id" });
+const dbPromise = openDB("restaurants-store", 7, {
+  upgrade(db, oldVersion) {
+    if (!db.objectStoreNames.contains("restaurants")) {
+      db.createObjectStore("restaurants", { keyPath: "id" });
+    }
+    if (!db.objectStoreNames.contains("reviews")) {
+      db.createObjectStore("reviews", { keyPath: "id" });
+    }
+    // Only recreate sync-reviews when first introduced (oldVersion < 7).
+    // Deleting unconditionally on every upgrade would wipe queued offline drafts.
+    if (oldVersion < 7) {
+      if (db.objectStoreNames.contains("sync-reviews")) {
+        db.deleteObjectStore("sync-reviews");
+      }
+      db.createObjectStore("sync-reviews", { keyPath: "localId", autoIncrement: true });
+    }
   }
-  if (!db.objectStoreNames.contains("reviews")) {
-    db.createObjectStore("reviews", { keyPath: "id" });
-  }
-  if (db.objectStoreNames.contains("sync-reviews")) {
-    db.deleteObjectStore("sync-reviews");
-  }
-  db.createObjectStore("sync-reviews", { keyPath: "localId", autoIncrement: true });
 });
 
 export async function writeItem(storeName, item) {
   const db = await dbPromise;
   const tx = db.transaction(storeName, "readwrite");
   tx.objectStore(storeName).put(item);
-  return tx.complete;
+  return tx.done;
 }
 
 export async function getItems(storeName) {
@@ -35,14 +41,14 @@ export async function deleteItems(storeName) {
   const db = await dbPromise;
   const tx = db.transaction(storeName, "readwrite");
   tx.objectStore(storeName).clear();
-  return tx.complete;
+  return tx.done;
 }
 
 export async function deleteItem(storeName, id) {
   const db = await dbPromise;
   const tx = db.transaction(storeName, "readwrite");
   tx.objectStore(storeName).delete(id);
-  return tx.complete;
+  return tx.done;
 }
 
 // For some reason, the Sails backend returns inconsistent data
