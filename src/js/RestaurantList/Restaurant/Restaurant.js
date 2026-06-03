@@ -1,19 +1,18 @@
 import { html } from "lit-html";
 import { getImage } from "../../imageLoader";
 import { urlForRestaurant, updateRestaurant } from "../../dbhelper";
-import { updateRestaurants } from "../../main";
 import Heart from "./components/Heart";
 
-async function handleFavoriteClick(restaurant) {
+async function handleFavoriteClick(restaurant, onFavoriteToggle) {
   try {
     await updateRestaurant({ id: restaurant.id, is_favorite: !restaurant.is_favorite });
-    updateRestaurants();
+    onFavoriteToggle();
   } catch (e) {
     console.error(e);
   }
 }
 
-function Restaurant(restaurant) {
+function Restaurant(restaurant, onFavoriteToggle) {
   return html`
   <li>
   <div class="responsively-lazy" data-restaurantid=${restaurant.id} style="padding-bottom: 75%;">
@@ -39,7 +38,7 @@ function Restaurant(restaurant) {
       aria-pressed=${restaurant.is_favorite}
       style="padding-top: 10px; background-color: white; border: none; color: white;"
       class="favorite-button"
-      @click=${() => handleFavoriteClick(restaurant)}
+      @click=${() => handleFavoriteClick(restaurant, onFavoriteToggle)}
     >
       ${Heart(40, 40, restaurant.is_favorite)}
     </button>

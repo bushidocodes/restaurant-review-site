@@ -81,7 +81,7 @@ export const updateRestaurants = async () => {
   try {
     const filteredRestaurants = await fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood);
     const restaurantListMountPoint = document.getElementById("restaurants-list");
-    render(RestaurantList(filteredRestaurants), restaurantListMountPoint);
+    render(RestaurantList(filteredRestaurants, updateRestaurants), restaurantListMountPoint);
     if (window.state.map) {
       window.state.markers.forEach(m => m.remove());
       window.state.markers = [];
