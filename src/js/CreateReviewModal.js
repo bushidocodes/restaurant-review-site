@@ -71,8 +71,33 @@ export default class CreateReviewModal {
   }
 
   submitForm() {
-    this.close();
     const postBody = this.getFormState();
+    const nameEl = document.querySelector("#name");
+    const ratingEl = document.querySelector("#rating");
+    const commentsEl = document.querySelector("#comments");
+
+    if (!postBody.name.trim()) {
+      nameEl.setCustomValidity("Please enter your name.");
+      nameEl.reportValidity();
+      return;
+    }
+    nameEl.setCustomValidity("");
+
+    if (!postBody.rating || postBody.rating < 1 || postBody.rating > 5) {
+      ratingEl.setCustomValidity("Please enter a rating between 1 and 5.");
+      ratingEl.reportValidity();
+      return;
+    }
+    ratingEl.setCustomValidity("");
+
+    if (!postBody.comments.trim()) {
+      commentsEl.setCustomValidity("Please enter a comment.");
+      commentsEl.reportValidity();
+      return;
+    }
+    commentsEl.setCustomValidity("");
+
+    this.close();
     console.log(`[App] Submitting post data`, postBody);
     this.onSubmit(postBody);
     this.clearFormState();

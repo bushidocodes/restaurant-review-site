@@ -42,8 +42,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const CRM = new CreateReviewModal({
     restaurantID: getParam("id"),
     onSubmit: async postBody => {
-      await postReview(postBody);
-      window.setTimeout(() => fetchReviewsFromURL(), 500);
+      const savedReview = await postReview(postBody);
+      if (savedReview) {
+        // Online: server confirmed the review — append it immediately without a round-trip
+        const reviews = [...(window.state.reviews || []), { ...savedReview, isDraft: false }];
+        fillReviewsHTML(reviews);
+        window.state.reviews = reviews;
+      } else {
+        // Offline (background sync): draft is now in IDB — re-fetch to show it immediately
+        fetchReviewsFromURL();
+      }
     }
   });
 
