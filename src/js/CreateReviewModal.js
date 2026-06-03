@@ -87,7 +87,7 @@ export default class CreateReviewModal {
   handleKeyDown(e) {
     const KEY_TAB = 9;
     const KEY_ESC = 27;
-    const KEY_ENTER = 27;
+    const KEY_ENTER = 13;
 
     const handleBackwardTab = () => {
       if (document.activeElement === this.firstFocusableEl) {

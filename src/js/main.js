@@ -108,4 +108,6 @@ toggleMapBtn.addEventListener("click", () => {
   }
 });
 
-navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews")).catch(() => {});
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews")).catch(() => {});
+}

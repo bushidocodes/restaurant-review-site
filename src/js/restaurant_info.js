@@ -38,6 +38,45 @@ document.addEventListener("DOMContentLoaded", async () => {
     console.error(e);
   }
   fetchReviewsFromURL();
+
+  const CRM = new CreateReviewModal({
+    restaurantID: getParam("id"),
+    onSubmit: async postBody => {
+      await postReview(postBody);
+      window.setTimeout(() => fetchReviewsFromURL(), 500);
+    }
+  });
+
+  document.querySelector("#add-review-btn").addEventListener("click", () => CRM.open());
+
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.addEventListener("message", event => {
+      event.ports[0].postMessage("ACK");
+      if (event.data === "refresh") {
+        fetchReviewsFromURL();
+      }
+    });
+
+    navigator.serviceWorker.ready
+      .then(sw => sw.sync.register("sync-new-reviews"))
+      .catch(() => {});
+  }
+
+  const toggleMapBtn = document.querySelector("#maptoggle");
+  const mapContainer = document.querySelector("#map-container");
+
+  toggleMapBtn.addEventListener("click", () => {
+    if (window.state.mapClosed) {
+      mapContainer.style.height = "50vh";
+      window.state.mapClosed = false;
+      toggleMapBtn.setAttribute("aria-pressed", "true");
+      if (!window.state.map) loadMap();
+    } else {
+      mapContainer.style.height = "0vh";
+      window.state.mapClosed = true;
+      toggleMapBtn.setAttribute("aria-pressed", "false");
+    }
+  });
 });
 
 function loadMap() {
@@ -63,10 +102,10 @@ async function fetchRestaurantFromURL() {
 
 function fillRestaurantHTML(restaurant = window.state.restaurant) {
   const name = document.getElementById("restaurant-name");
-  name.innerHTML = restaurant.name;
+  name.textContent = restaurant.name;
 
   const address = document.getElementById("restaurant-address");
-  address.innerHTML = restaurant.address;
+  address.textContent = restaurant.address;
 
   const imageFile = getImage(restaurant.photograph);
   const image = document.getElementById("restaurant-img");
@@ -76,7 +115,7 @@ function fillRestaurantHTML(restaurant = window.state.restaurant) {
   image.src = imageFile.src;
 
   const cuisine = document.getElementById("restaurant-cuisine");
-  cuisine.innerHTML = restaurant.cuisine_type;
+  cuisine.textContent = restaurant.cuisine_type;
 
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
@@ -91,10 +130,10 @@ function fillRestaurantHoursHTML(
   for (let key in operatingHours) {
     const row = document.createElement("tr");
     const day = document.createElement("td");
-    day.innerHTML = key;
+    day.textContent = key;
     row.appendChild(day);
     const time = document.createElement("td");
-    time.innerHTML = operatingHours[key];
+    time.textContent = operatingHours[key];
     row.appendChild(time);
     hours.appendChild(row);
   }
@@ -155,40 +194,3 @@ function fillBreadcrumb(restaurant = window.state.restaurant) {
   li.appendChild(anchor);
   breadcrumb.appendChild(li);
 }
-
-const CRM = new CreateReviewModal({
-  restaurantID: getParam("id"),
-  onSubmit: async postBody => {
-    await postReview(postBody);
-    window.setTimeout(() => fetchReviewsFromURL(), 500);
-  }
-});
-
-document.querySelector("#add-review-btn").addEventListener("click", () => CRM.open());
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.addEventListener("message", event => {
-    event.ports[0].postMessage("ACK");
-    if (event.data === "refresh") {
-      fetchReviewsFromURL();
-    }
-  });
-}
-
-const toggleMapBtn = document.querySelector("#maptoggle");
-const mapContainer = document.querySelector("#map-container");
-
-toggleMapBtn.addEventListener("click", () => {
-  if (window.state.mapClosed) {
-    mapContainer.style.height = "50vh";
-    window.state.mapClosed = false;
-    toggleMapBtn.setAttribute("aria-pressed", "true");
-    if (!window.state.map) loadMap();
-  } else {
-    mapContainer.style.height = "0vh";
-    window.state.mapClosed = true;
-    toggleMapBtn.setAttribute("aria-pressed", "false");
-  }
-});
-
-navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews")).catch(() => {});
