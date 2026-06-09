@@ -182,7 +182,7 @@ function syncNewReviews() {
         })
         .catch(err => {
           const humanFriendlyErrorMessage =
-            err == "TypeError: Failed to fetch"
+            err instanceof TypeError && err.message === "Failed to fetch"
               ? `[SW] Unable to sync reviews with server. This is probably because you are offline`
               : `[SW] Unable to sync reviews with server due to an unknown error. Please contact the developer with the following error message: ${err}`;
           if (!notifiedClient) {
