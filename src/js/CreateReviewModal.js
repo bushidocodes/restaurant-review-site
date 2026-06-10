@@ -143,7 +143,8 @@ export default class CreateReviewModal {
         this.close();
         break;
       case KEY_ENTER:
-        this.close();
+        e.preventDefault();
+        this.submitForm();
         break;
       default:
         break;
