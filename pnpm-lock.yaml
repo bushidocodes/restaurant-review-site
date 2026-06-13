@@ -18,8 +18,8 @@ importers:
         specifier: ^3.0.0
         version: 3.3.3
       responsively-lazy:
-        specifier: ^2.0.2
-        version: 2.0.2
+        specifier: ^3.2.1
+        version: 3.2.1
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^4.1.8
@@ -2616,8 +2616,8 @@ packages:
     engines: {node: '>= 0.4'}
     hasBin: true
 
-  responsively-lazy@2.0.2:
-    resolution: {integrity: sha512-4A2ORqfdRI3SRVHafqTiUegrg0SvB7ctYtUo174V68hCuohmKU3eemD6uO7UyxvQYbkg+BRyzPudC8zfjC621w==}
+  responsively-lazy@3.2.1:
+    resolution: {integrity: sha512-REmwjqEX7qr4u8yXHH3TLYLC2ofzs+z7xoOWtTHL1TRlz9qRi5oe5JHHgoPFW4zclWyq8wOzv3gyb/629xtRZg==}
 
   revalidator@0.1.8:
     resolution: {integrity: sha512-xcBILK2pA9oh4SiinPEZfhP8HfrB/ha+a2fTMyl7Om2WjlDVrOQy99N2MXXlUHqGJz4qEu2duXxHJjDWuK/0xg==}
@@ -6094,7 +6094,7 @@ snapshots:
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
 
-  responsively-lazy@2.0.2: {}
+  responsively-lazy@3.2.1: {}
 
   revalidator@0.1.8: {}
 
