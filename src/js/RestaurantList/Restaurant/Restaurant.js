@@ -15,16 +15,14 @@ async function handleFavoriteClick(restaurant, onFavoriteToggle) {
 function Restaurant(restaurant, onFavoriteToggle) {
   return html`
   <li>
-  <div class="responsively-lazy" data-restaurantid=${restaurant.id} style="padding-bottom: 75%;">
-    <img
-      alt="Image of ${restaurant.name}"
-      class="restaurant-img"
-      sizes="(max-width: 450px) 90vw, 600px"
-      data-srcset=${getImage(restaurant.photograph).srcSet}
-      srcset="data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
-      src=${getImage(restaurant.photograph).src}
-    />
-  </div>
+  <img
+    alt="Image of ${restaurant.name}"
+    class="restaurant-img"
+    style="aspect-ratio: 4 / 3;"
+    data-responsively-lazy=${getImage(restaurant.photograph).srcSet}
+    srcset="data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+    src=${getImage(restaurant.photograph).src}
+  />
   <h1>${restaurant.name}</h1>
   <p>${restaurant.neighborhood}</p>
   <p>${restaurant.address}</p>

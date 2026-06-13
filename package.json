@@ -49,6 +49,6 @@
     "idb": "^8.0.0",
     "leaflet": "^1.9.4",
     "lit-html": "^3.0.0",
-    "responsively-lazy": "^2.0.2"
+    "responsively-lazy": "^3.2.1"
   }
 }
