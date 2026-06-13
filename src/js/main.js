@@ -43,7 +43,7 @@ async function fetchAndFillNeighborhoods() {
     const select = document.getElementById("neighborhoods-select");
     neighborhoods.forEach(neighborhood => {
       const option = document.createElement("option");
-      option.innerHTML = neighborhood;
+      option.textContent = neighborhood;
       option.value = neighborhood;
       select.append(option);
     });
@@ -58,7 +58,7 @@ async function fetchAndFillCuisines() {
     const select = document.getElementById("cuisines-select");
     cuisines.forEach(cuisine => {
       const option = document.createElement("option");
-      option.innerHTML = cuisine;
+      option.textContent = cuisine;
       option.value = cuisine;
       select.append(option);
     });
