@@ -2,6 +2,9 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { imagetools } from "vite-imagetools";
 import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Multi-page PWA. `root` is `src/`, so HTML entry points, the service-worker
 // source and the `public/` static dir all live under `src/`. The build emits to

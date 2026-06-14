@@ -1,7 +1,10 @@
-const express = require("express");
-const morgan = require("morgan");
-const path = require("path");
-const compression = require("compression");
+import express from "express";
+import morgan from "morgan";
+import path from "path";
+import compression from "compression";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 // Setup Gzip compression of response bodies
@@ -14,8 +17,11 @@ app.use(
   )
 );
 
+// Use the `root` option rather than passing an absolute path: Express 5's
+// `send` rejects Windows backslash absolute paths (from `path.resolve`) with a
+// spurious 404. The `root` form is normalized cross-platform.
 app.get("/restaurant.html", (req, res) =>
-  res.sendFile(path.resolve(__dirname, "dist", "restaurant.html"))
+  res.sendFile("restaurant.html", { root: path.resolve(__dirname, "dist") })
 );
 // Serve static assets, and do not automatically direct to the index
 app.use(express.static(path.resolve(__dirname, "dist")));
