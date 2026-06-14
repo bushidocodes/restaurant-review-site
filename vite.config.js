@@ -41,7 +41,11 @@ export default defineConfig({
         // Precache the app shell only (both HTML pages, JS, CSS) plus the web
         // manifest. Restaurant photos are runtime-cached (StaleWhileRevalidate in
         // sw.js), matching the previous webpack InjectManifest scope.
-        globPatterns: ["**/*.{js,css,html}", "manifest.json"]
+        globPatterns: ["**/*.{js,css,html}", "manifest.json"],
+        // vite-plugin-pwa's ES-format SW build hardcodes inlineDynamicImports:true
+        // in rollup output options, which Vite 8/Rolldown has deprecated. The IIFE
+        // format path has no such option and produces identical sw.js output.
+        rollupFormat: "iife"
       },
       // No service worker in dev: the precaching SW serves stale navigations,
       // masking source edits and interfering with HMR. It's exercised in the
