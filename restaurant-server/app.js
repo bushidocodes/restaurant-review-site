@@ -1,37 +1,109 @@
 /**
  * app.js
  *
- * Use `app.js` to run your app without `sails lift`.
- * To start the server, run: `node app.js`.
+ * Entry point for the Restaurant Reviews API. Start it with:
  *
- * The same command-line arguments are supported, e.g.:
- * `node app.js --silent --port=80 --prod`
+ *   node app.js
+ *
+ * Configuration (all optional — the defaults are tuned for `git clone` + run):
+ *
+ *   PORT            Port to listen on.                      Default: 1337
+ *   DATABASE_PATH   Path to a SQLite file. When set, data   Default: (unset) →
+ *                   persists across restarts. When unset,    in-memory, ephemeral
+ *                   the API runs on an in-memory database.
+ *   CORS_ORIGIN     Comma-separated list of allowed         Default: reflect any
+ *                   front-end origins. Set this in           origin (dev-friendly)
+ *                   production to lock the API down.
+ *   SESSION_SECRET  Secret used to sign the session cookie.  Default: insecure
+ *                   Set a real value in production.          dev fallback
  */
 
-// Ensure we're in the project directory, so cwd-relative paths work as expected
-// no matter where we actually lift from.
-process.chdir(__dirname);
+import express from "express";
+import cors from "cors";
+import session from "express-session";
+import morgan from "morgan";
+import { existsSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import path from "node:path";
 
-if (!process.env.SESSION_SECRET) {
-  console.error('Error: SESSION_SECRET environment variable is required.');
-  process.exit(1);
+import { openDatabase } from "./db.js";
+import { createApiRouter } from "./routes.js";
+
+// Load the shared repo-root `.env` (the same file Vite reads) if it exists, so
+// the documented env vars work with a plain `node app.js`. Real environment
+// variables (CI, `docker run -e`, your shell) take precedence over the file.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const envPath = path.resolve(__dirname, "..", ".env");
+if (existsSync(envPath)) {
+  process.loadEnvFile(envPath);
 }
 
-// Attempt to import `sails` (and `rc`, which Sails bundles).
-var sails;
-var rc;
-try {
-  sails = require('sails');
-  rc = require('sails/accessible/rc');
-} catch (err) {
-  console.error('Encountered an error when attempting to require(\'sails\'):');
-  console.error(err.stack);
-  console.error('--');
-  console.error('To run an app using `node app.js`, you need to have Sails installed');
-  console.error('locally (`./node_modules/sails`). To do that, just make sure you\'re');
-  console.error('in the same directory as your app and run `npm install`.');
-  return;
-}
+const PORT = Number(process.env.PORT) || 1337;
+const DATABASE_PATH = process.env.DATABASE_PATH || null;
+const CORS_ORIGIN = process.env.CORS_ORIGIN || null;
+const SESSION_SECRET = process.env.SESSION_SECRET || null;
 
-// Start server
-sails.lift(rc('sails'));
+const { db, seeded } = openDatabase({ databasePath: DATABASE_PATH });
+
+const app = express();
+
+app.use(morgan("dev"));
+app.use(express.json());
+
+// CORS: when CORS_ORIGIN is set, allow only those origins; otherwise reflect
+// the request origin so the app works on whatever local port you serve from.
+app.use(
+  cors({
+    origin: CORS_ORIGIN ? CORS_ORIGIN.split(",").map((o) => o.trim()) : true,
+    credentials: true,
+  })
+);
+
+// Session middleware. Sessions aren't required by the front-end, but the
+// middleware is wired up so the API can grow auth later. A missing
+// SESSION_SECRET falls back to an insecure dev value (with a warning) rather
+// than blocking startup.
+if (!SESSION_SECRET) {
+  console.warn(
+    "[api] SESSION_SECRET is not set — using an insecure development secret. " +
+      "Set SESSION_SECRET in production."
+  );
+}
+app.use(
+  session({
+    secret: SESSION_SECRET || "insecure-dev-secret",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.get("/healthcheck", (req, res) => res.sendStatus(200));
+
+app.use(createApiRouter(db));
+
+// JSON 404 for unmatched routes.
+app.use((req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
+
+// Centralized JSON error handler.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error("[api] Unhandled error:", err);
+  res.status(500).json({ error: "Internal server error" });
+});
+
+app.listen(PORT, () => {
+  if (DATABASE_PATH) {
+    console.log(
+      `[api] Using SQLite database at ${DATABASE_PATH}` +
+        (seeded ? " (seeded with bundled data)" : " (existing data preserved)")
+    );
+  } else {
+    console.log(
+      "[api] Using an in-memory database (data resets on restart). " +
+        "Set DATABASE_PATH to persist."
+    );
+  }
+  console.log(`[api] Restaurant Reviews API listening on http://localhost:${PORT}`);
+});

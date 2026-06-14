@@ -20,6 +20,7 @@ WORKDIR /app/restaurant-server
 
 EXPOSE 1337
 
-# Required at runtime: SESSION_SECRET
-# docker run -e SESSION_SECRET=<value> ...
+# No env vars are required. For persistence across restarts, set DATABASE_PATH
+# to a path on a mounted volume, e.g.:
+#   docker run -p 1337:1337 -e DATABASE_PATH=/data/reviews.db -v "$PWD/data:/data" ...
 CMD ["node", "server"]

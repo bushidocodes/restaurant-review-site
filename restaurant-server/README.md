@@ -1,192 +1,102 @@
-# Local Development API Server
+# Restaurant Reviews API
 
-## Usage
+A small JSON REST API for the Restaurant Reviews app. Built with
+[Express](https://expressjs.com/) on top of Node's built-in
+[`node:sqlite`](https://nodejs.org/api/sqlite.html) module — no native add-ons to
+compile and nothing to install beyond the npm dependencies.
 
-#### Get Restaurants
+## Running it
 
-```
-curl "http://localhost:1337/restaurants"
-```
+From the **repo root** (this is a pnpm workspace, so one install covers the UI
+and the API):
 
-#### Get Restaurants by id
-
-```
-curl "http://localhost:1337/restaurants/{3}"
-```
-
-## Architecture
-
-Local server
-
-- Node.js
-- Sails.js
-
-## Contributors
-
-- [Brandy Lee Camacho - Technical Project Manager](mailto:brandy.camacho@udacity.com)
-- [David Harris - Web Services Lead](mailto:david.harris@udacity.com)
-- [Omar Albeik - Frontend engineer](mailto:omaralbeik@gmail.com)
-
-## Getting Started
-
-### Development local API Server
-
-_Location of server = /server_
-Server depends on [node.js (LTS v18 or newer)](https://nodejs.org/en/download/) and [npm](https://www.npmjs.com/get-npm). Sails.js 1.x is installed locally as a project dependency, so a global install is not required.
-Please make sure you have these installed before proceeding forward.
-
-Great, you are ready to proceed forward; awesome!
-
-Let's start with running commands in your terminal, known as command line interface (CLI)
-
-###### Install project dependencies
-
-```Install project dependencies
-# npm i
+```bash
+pnpm install
+pnpm run serve:api      # → http://localhost:1337
 ```
 
-###### Start the server
+Or directly:
 
-```Start server
-# SESSION_SECRET=<your-secret> node server
+```bash
+cd restaurant-server
+node app.js
 ```
 
-> The server requires a `SESSION_SECRET` environment variable. Set `CORS_ORIGIN`
-> to the front-end origin(s) allowed to call the API (defaults to
-> `http://localhost:8080`).
+By default the API runs on an **in-memory** database that is seeded from
+[`seed-data.json`](./seed-data.json) on every start — zero setup, ideal for a
+quick demo. Set `DATABASE_PATH` to switch to a file and get real persistence
+(see below).
 
-### You should now have access to your API server environment
+## Configuration
 
-debug: Environment : development
-debug: Port : 1337
+All environment variables are optional. The defaults are chosen so the API runs
+with no configuration at all.
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `PORT` | Port to listen on | `1337` |
+| `DATABASE_PATH` | Path to a SQLite file. When set, data persists across restarts and is seeded only once (on an empty file). When unset, an ephemeral in-memory database is used. | _(unset → in-memory)_ |
+| `CORS_ORIGIN` | Comma-separated list of allowed front-end origins. When unset, the request origin is reflected (convenient in local dev). Set this explicitly in production. | _(unset → reflect any origin)_ |
+| `SESSION_SECRET` | Secret used to sign the session cookie. Falls back to an insecure dev value (with a warning) when unset. Set a real value in production. | _(unset → dev fallback)_ |
+
+### Enabling persistence
+
+```bash
+DATABASE_PATH=./data/reviews.db node app.js
+```
+
+The parent directory is created automatically. The file is seeded with the
+bundled data on first run and left untouched on subsequent starts. To reset to
+the bundled seed data, delete the file and restart:
+
+```bash
+rm -f ./data/reviews.db*
+node app.js
+```
 
 ## Endpoints
 
-### GET Endpoints
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/restaurants` | List all restaurants |
+| `GET` | `/restaurants/:id` | Get one restaurant |
+| `POST` | `/restaurants` | Create a restaurant |
+| `PUT` | `/restaurants/:id` | Partially update a restaurant (e.g. toggle `is_favorite`) |
+| `DELETE` | `/restaurants/:id` | Delete a restaurant |
+| `GET` | `/reviews` | List reviews. Filter with `?restaurant_id=<id>` |
+| `GET` | `/reviews/:id` | Get one review |
+| `POST` | `/reviews` | Create a review |
+| `PUT` | `/reviews/:id` | Partially update a review |
+| `DELETE` | `/reviews/:id` | Delete a review |
+| `GET` | `/healthcheck` | Returns `200` when the server is up |
 
-#### Get all restaurants
+### Create a review
 
-```
-http://localhost:1337/restaurants/
-```
-
-#### Get favorite restaurants
-
-```
-http://localhost:1337/restaurants/?is_favorite=true
-```
-
-#### Get a restaurant by id
-
-```
-http://localhost:1337/restaurants/<restaurant_id>
-```
-
-#### Get all reviews for a restaurant
-
-```
-http://localhost:1337/reviews/?restaurant_id=<restaurant_id>
+```bash
+curl -X POST http://localhost:1337/reviews \
+  -H 'Content-Type: application/json' \
+  -d '{ "restaurant_id": 1, "name": "Ada", "rating": 5, "comments": "Great!" }'
 ```
 
-#### Get all restaurant reviews
+### Toggle a favorite
 
-```
-http://localhost:1337/reviews/
-```
-
-#### Get a restaurant review by id
-
-```
-http://localhost:1337/reviews/<review_id>
+```bash
+curl -X PUT http://localhost:1337/restaurants/1 \
+  -H 'Content-Type: application/json' \
+  -d '{ "is_favorite": true }'
 ```
 
-#### Get all reviews for a restaurant
+## Docker
 
-```
-http://localhost:1337/reviews/?restaurant_id=<restaurant_id>
-```
+The image build context is the **monorepo root** so the workspace lockfile is
+available:
 
-### POST Endpoints
-
-#### Create a new restaurant review
-
-```
-http://localhost:1337/reviews/
-```
-
-###### Parameters
-
-```
-{
-    "restaurant_id": <restaurant_id>,
-    "name": <reviewer_name>,
-    "rating": <rating>,
-    "comments": <comment_text>
-}
+```bash
+docker build -f restaurant-server/Dockerfile -t restaurant-reviews-api .
+docker run -p 1337:1337 \
+  -e DATABASE_PATH=/data/reviews.db \
+  -v "$(pwd)/data:/data" \
+  restaurant-reviews-api
 ```
 
-### PUT Endpoints
-
-#### Favorite a restaurant
-
-```
-http://localhost:1337/restaurants/<restaurant_id>/?is_favorite=true
-```
-
-#### Unfavorite a restaurant
-
-```
-http://localhost:1337/restaurants/<restaurant_id>/?is_favorite=false
-```
-
-#### Update a restaurant review
-
-```
-http://localhost:1337/reviews/<review_id>
-```
-
-###### Parameters
-
-```
-{
-    "name": <reviewer_name>,
-    "rating": <rating>,
-    "comments": <comment_text>
-}
-```
-
-### DELETE Endpoints
-
-#### Delete a restaurant review
-
-```
-http://localhost:1337/reviews/<review_id>
-```
-
-If you find a bug in the source code or a mistake in the documentation, you can help us by
-submitting an issue to our [Waffle Dashboard](https://waffle.io/udacity/mwnd-issues). Even better you can submit a Pull Request with a fix :)
-
-### Development local Docker image
-
-Given that you have [Docker](https://www.docker.com) installed on your local system.
-You can build a image of this source with the expected server versions for node.js and sails.js version.
-
-Open your terminal and navigate into the folder that contains this source code.
-
-###### Build local Docker image
-
-This command builds a new image named mws-restaurant-stage-3 from the current directory.
-
-```
-docker build -t mws-restaurant-stage-3 .
-```
-
-###### Start the server
-
-Starts image named mws-restaurant-stage-3 and exposes port 1337 outside the container.
-
-```
-docker run -p 1337:1337 mws-restaurant-stage-3
-```
-
-You should now have access to the server and be able to issue HTTP requests against the API.
+Mounting a volume for `DATABASE_PATH` keeps the data across container restarts.
