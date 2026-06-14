@@ -28,3 +28,18 @@ jobs:
 
       - name: Build
         run: pnpm build:ui
+
+      - name: Smoke-test Sails API
+        run: |
+          SESSION_SECRET=ci-smoke-test node app.js &
+          SAILS_PID=$!
+          trap "kill $SAILS_PID 2>/dev/null" EXIT
+          for i in $(seq 1 30); do
+            if ! kill -0 $SAILS_PID 2>/dev/null; then
+              echo "Sails exited unexpectedly" && exit 1
+            fi
+            curl -sf http://localhost:1337/restaurants && break
+            sleep 1
+          done
+          curl -sf http://localhost:1337/restaurants
+        working-directory: restaurant-server
