@@ -15,28 +15,44 @@ pnpm install
 pnpm start
 ```
 
+That's it — no configuration required. The API ([`restaurant-server`](./restaurant-server))
+is a small [Express](https://expressjs.com/) server backed by Node's built-in
+[`node:sqlite`](https://nodejs.org/api/sqlite.html), seeded with the bundled restaurant
+and review data on startup.
+
 The app will open in Chrome automatically, but the browser loads before the backend has started up entirely. Hit refresh to load cleanly.
 
 This will install and start the production build of the app.
 
 #### Environment variables
 
-Copy `.env.example` to `.env` and fill in the values before starting:
+Everything is optional. Copy `.env.example` to `.env` to customize — the file is shared
+by the front end (Vite) and the API.
 
-| Variable | Purpose | Example |
+| Variable | Purpose | Default |
 |---|---|---|
-| `SESSION_SECRET` | Sails session signing — **required** to start the API | any random string |
-| `CORS_ORIGIN` | Allowed front-end origin for the API | `http://localhost:7000` |
 | `API_SERVER` | Front-end base URL for the API | `http://localhost:1337` |
+| `DATABASE_PATH` | Path to a SQLite file. **Set this to persist data across restarts**; unset means an in-memory DB that re-seeds each start. | _(unset → in-memory)_ |
+| `CORS_ORIGIN` | Allowed front-end origin(s) for the API, comma-separated | _(unset → reflect any origin)_ |
+| `SESSION_SECRET` | Signs the session cookie; falls back to an insecure dev value when unset | _(unset → dev fallback)_ |
 
-The API server (`restaurant-server/app.js`) exits immediately if `SESSION_SECRET` is not set.
+See [`restaurant-server/README.md`](./restaurant-server/README.md) for the full API reference.
 
-#### Re-seeding the database
+#### Persisting data
 
-The API seeds restaurants and reviews on first launch against an empty store. If you need to reset to the bundled seed data (e.g. after a seed-data fix), delete the Sails-disk database and restart:
+By default the API runs on an in-memory database, so it starts instantly and resets on
+every restart — ideal for a quick demo. To keep data across restarts, point
+`DATABASE_PATH` at a file:
 
 ```bash
-rm -rf restaurant-server/.tmp/localDiskDb
+DATABASE_PATH=./restaurant-server/data/reviews.db pnpm run serve:api
+```
+
+The file is seeded once and preserved thereafter. To reset to the bundled seed data,
+delete it and restart:
+
+```bash
+rm -f restaurant-server/data/reviews.db*
 pnpm run serve:api
 ```
 

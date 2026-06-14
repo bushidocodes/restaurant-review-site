@@ -29,17 +29,24 @@ jobs:
       - name: Build
         run: pnpm build:ui
 
-      - name: Smoke-test Sails API
+      - name: Smoke-test API
         run: |
-          SESSION_SECRET=ci-smoke-test node app.js &
-          SAILS_PID=$!
-          trap "kill $SAILS_PID 2>/dev/null" EXIT
+          node app.js &
+          API_PID=$!
+          trap "kill $API_PID 2>/dev/null" EXIT
           for i in $(seq 1 30); do
-            if ! kill -0 $SAILS_PID 2>/dev/null; then
-              echo "Sails exited unexpectedly" && exit 1
+            if ! kill -0 $API_PID 2>/dev/null; then
+              echo "API server exited unexpectedly" && exit 1
             fi
-            curl -sf http://localhost:1337/restaurants && break
+            curl -sf http://localhost:1337/healthcheck >/dev/null && break
             sleep 1
           done
-          curl -sf http://localhost:1337/restaurants
+          # Assert the seeded restaurants endpoint returns a non-empty JSON array.
+          curl -sf http://localhost:1337/restaurants | node -e "
+            let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{
+              const a=JSON.parse(d);
+              if (!Array.isArray(a) || a.length === 0) { console.error('Expected non-empty array'); process.exit(1); }
+              console.log('API smoke test OK:', a.length, 'restaurants');
+            });
+          "
         working-directory: restaurant-server

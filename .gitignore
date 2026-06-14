@@ -6,5 +6,9 @@ dist
 src/sw-cache
 .env
 .env.local
-restaurant-server/config/local.js
 **/.tmp/
+# SQLite database files (created when DATABASE_PATH is set)
+*.db
+*.db-wal
+*.db-shm
+restaurant-server/data/
