@@ -1,7 +1,10 @@
-const express = require("express");
-const morgan = require("morgan");
-const path = require("path");
-const compression = require("compression");
+import express from "express";
+import morgan from "morgan";
+import path from "path";
+import compression from "compression";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 // Setup Gzip compression of response bodies
