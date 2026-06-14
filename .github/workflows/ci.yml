@@ -29,10 +29,6 @@ jobs:
       - name: Build
         run: pnpm build:ui
 
-      - name: Install Sails API dependencies
-        run: npm ci
-        working-directory: restaurant-server
-
       - name: Smoke-test Sails API
         run: |
           SESSION_SECRET=ci-smoke-test node app.js &

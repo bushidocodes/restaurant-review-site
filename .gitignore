@@ -1,7 +1,7 @@
 node_modules
 coverage
 .DS_Store
-/package-lock.json
+package-lock.json
 dist
 src/sw-cache
 .env
