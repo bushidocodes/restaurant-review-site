@@ -19,9 +19,10 @@ function Restaurant(restaurant, onFavoriteToggle) {
     alt="Image of ${restaurant.name}"
     class="restaurant-img"
     style="aspect-ratio: 4 / 3;"
-    data-responsively-lazy=${getImage(restaurant.photograph).srcSet}
-    srcset="data:image/gif;base64,R0lGODlhAQABAIAAAP///////yH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+    srcset=${getImage(restaurant.photograph).srcSet}
     src=${getImage(restaurant.photograph).src}
+    loading="lazy"
+    decoding="async"
   />
   <h1>${restaurant.name}</h1>
   <p>${restaurant.neighborhood}</p>
