@@ -1,4 +1,3 @@
-import "responsively-lazy/responsively-lazy.js";
 import {
   fetchNeighborhoods,
   fetchCuisines,

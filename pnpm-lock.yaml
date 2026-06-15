@@ -17,9 +17,6 @@ importers:
       lit-html:
         specifier: ^3.0.0
         version: 3.3.3
-      responsively-lazy:
-        specifier: ^3.2.1
-        version: 3.2.1
     devDependencies:
       '@vitest/coverage-v8':
         specifier: ^4.1.8
@@ -2275,9 +2272,6 @@ packages:
     resolution: {integrity: sha512-TyeJ1zif53BPfHootBGwPRYT1RUt6oGWsaQr8UyZW/eAm9bKoijtvruSDEmZHm92CwS9nj7/fWttqPCgzep8CA==}
     engines: {node: '>= 0.4'}
     hasBin: true
-
-  responsively-lazy@3.2.1:
-    resolution: {integrity: sha512-REmwjqEX7qr4u8yXHH3TLYLC2ofzs+z7xoOWtTHL1TRlz9qRi5oe5JHHgoPFW4zclWyq8wOzv3gyb/629xtRZg==}
 
   rolldown@1.0.3:
     resolution: {integrity: sha512-i00lAJ2ks1BYr7rjNjKC7BcqAS7nVfiT3QX1SI5aY+AFHblCmaUf9OE9dbdzDvW6dJxbi2ZCZiy9v3CcwOiX3g==}
@@ -5106,8 +5100,6 @@ snapshots:
       is-core-module: 2.16.2
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
-
-  responsively-lazy@3.2.1: {}
 
   rolldown@1.0.3:
     dependencies:
