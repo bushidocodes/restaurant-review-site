@@ -19,7 +19,6 @@
  */
 
 import express from "express";
-import cors from "cors";
 import session from "express-session";
 import morgan from "morgan";
 import { existsSync } from "node:fs";
@@ -52,12 +51,18 @@ app.use(express.json());
 
 // CORS: when CORS_ORIGIN is set, allow only those origins; otherwise reflect
 // the request origin so the app works on whatever local port you serve from.
-app.use(
-  cors({
-    origin: CORS_ORIGIN ? CORS_ORIGIN.split(",").map((o) => o.trim()) : true,
-    credentials: true,
-  })
-);
+app.use((req, res, next) => {
+  const allowed = CORS_ORIGIN ? CORS_ORIGIN.split(",").map(o => o.trim()) : null;
+  const origin = req.headers.origin;
+  if (!allowed || (origin && allowed.includes(origin))) {
+    res.setHeader("Access-Control-Allow-Origin", origin || "*");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  }
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
 
 // Session middleware. Sessions aren't required by the front-end, but the
 // middleware is wired up so the API can grow auth later. A missing

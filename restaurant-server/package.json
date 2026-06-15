@@ -10,7 +10,6 @@
     "dev": "node --watch app.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
     "express": "^5.2.1",
     "express-session": "^1.18.2",
     "morgan": "^1.11.0"
