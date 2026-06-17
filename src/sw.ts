@@ -8,10 +8,11 @@ import {
   deleteItems,
   writeItem,
   getItems,
-  sanitizeReview
+  sanitizeReview,
+  type RawReview
 } from "./js/utils";
 import { postReviewDirectly } from "./js/dbhelper";
-import type { ReviewDraft } from "./js/types";
+import type { Restaurant, ReviewDraft } from "./js/types";
 
 // vite-plugin-pwa injects the precache manifest by string-replacing the literal
 // `self.__WB_MANIFEST`, so that token must appear verbatim below. The SW config
@@ -87,8 +88,8 @@ registerRoute(
       if (res.ok) {
         const cloneRes = res.clone();
         deleteItems("restaurants").then(() =>
-          cloneRes.json().then(resAsJSON => {
-            resAsJSON.forEach((item: unknown) => writeItem("restaurants", item));
+          cloneRes.json().then((resAsJSON: Restaurant[]) => {
+            resAsJSON.forEach(item => writeItem("restaurants", item));
           })
         );
       }
@@ -111,7 +112,7 @@ const restaurantByIDHandler = async ({ request }: { request: Request }): Promise
       res
         .clone()
         .json()
-        .then(restaurant => writeItem("restaurants", restaurant))
+        .then((restaurant: Restaurant) => writeItem("restaurants", restaurant))
         .catch(err => console.log(err));
     }
     return res;
@@ -138,7 +139,7 @@ registerRoute(
         res
           .clone()
           .json()
-          .then((dirtyReviews: any[]) =>
+          .then((dirtyReviews: RawReview[]) =>
             dirtyReviews.map(dirtyReview => sanitizeReview(dirtyReview))
           )
           .then(cleanReviews => {
@@ -183,18 +184,20 @@ let notifiedClient = false;
 
 function syncNewReviews(): Promise<unknown> {
   notifiedClient = false;
-  return getItems<ReviewDraft & { localId: number }>("sync-reviews").then(reviews => {
-    if (reviews && reviews.length > 0) {
-      const arrOfPromises = reviews.map(review => {
-        const { localId: _localId, ...reviewBody } = review;
-        void _localId;
+  return getItems("sync-reviews").then(allDrafts => {
+    // Only drafts that have been persisted have a localId (the IDB key).
+    const reviews = allDrafts.filter(
+      (r): r is ReviewDraft & { localId: number } => r.localId !== undefined
+    );
+    if (reviews.length > 0) {
+      const arrOfPromises = reviews.map(({ localId, ...reviewBody }) => {
         return postReviewDirectly(reviewBody)
           .then(resBody => {
             console.log(`[SW] Synced review with server`, resBody);
-            return deleteItem("sync-reviews", review.localId);
+            return deleteItem("sync-reviews", localId);
           })
           .catch(err => {
-            console.log(`[SW] Error syncing review ${review.name}`, err);
+            console.log(`[SW] Error syncing review ${reviewBody.name}`, err);
             return Promise.reject(err);
           });
       });

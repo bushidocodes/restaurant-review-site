@@ -86,7 +86,7 @@ describe("writeItem / getItem", () => {
     await writeItem(STORE, { id: 1, name: "Original" });
     await writeItem(STORE, { id: 1, name: "Updated" });
     const result = await getItem(STORE, 1);
-    expect(result.name).toBe("Updated");
+    expect(result?.name).toBe("Updated");
   });
 
   it("returns undefined for a missing key", async () => {
@@ -125,7 +125,7 @@ describe("deleteItem", () => {
     await deleteItem(STORE, 2);
     const result = await getItems(STORE);
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe(1);
+    expect(result[0]?.id).toBe(1);
   });
 
   it("is a no-op when the key does not exist", async () => {

@@ -19,7 +19,7 @@ export async function fetchRestaurants(): Promise<Restaurant[]> {
   } catch {
     // Network unavailable — fall through to IDB
   }
-  return getItems<Restaurant>("restaurants");
+  return getItems("restaurants");
 }
 
 export async function fetchRestaurantById(
@@ -36,7 +36,7 @@ export async function fetchRestaurantById(
   } catch {
     // Network unavailable — fall through to IDB
   }
-  return getItem<Restaurant>("restaurants", id);
+  return getItem("restaurants", id);
 }
 
 export async function updateRestaurant(body: Partial<Restaurant>): Promise<Restaurant> {
@@ -128,7 +128,7 @@ export async function fetchReviewsForRestaurant(
   restaurantID: number | string
 ): Promise<DisplayReview[]> {
   const id = Number(restaurantID);
-  const draftReviews: DisplayReview[] = await getItems<ReviewDraft>("sync-reviews").then(items =>
+  const draftReviews: DisplayReview[] = await getItems("sync-reviews").then(items =>
     items
       .filter(r => Number(r.restaurant_id) === id)
       .map(r => ({ ...r, isDraft: true }))
@@ -145,7 +145,7 @@ export async function fetchReviewsForRestaurant(
     // Network unavailable — fall through to IDB
   }
 
-  const cachedReviews: DisplayReview[] = await getItems<Review>("reviews").then(items =>
+  const cachedReviews: DisplayReview[] = await getItems("reviews").then(items =>
     items
       .filter(r => r.restaurant_id === id)
       .map(r => ({ ...r, isDraft: false }))

@@ -24,5 +24,7 @@ export interface RestaurantImage {
 export function getImage(fileName: string | null | undefined): RestaurantImage {
   const name = fileName && VALID.has(fileName) ? fileName : FALLBACK;
   const key = `../img/${name}.jpg`;
-  return { srcSet: srcsets[key], src: fallbacks[key] };
+  // `name` is always a VALID id (or the bundled FALLBACK), so both globs have an
+  // entry for `key` — assert past the index signature's `| undefined`.
+  return { srcSet: srcsets[key]!, src: fallbacks[key]! };
 }

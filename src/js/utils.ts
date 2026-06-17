@@ -1,9 +1,19 @@
-import { openDB } from "idb";
-import type { Review } from "./types";
+import { openDB, type DBSchema } from "idb";
+import type { Restaurant, Review, ReviewDraft } from "./types";
 
+// Maps each object store to the value type it holds, so reads and writes are
+// type-checked against the store name (no per-call type arguments needed).
+interface ReviewsDB extends DBSchema {
+  restaurants: { key: number; value: Restaurant };
+  reviews: { key: number; value: Review };
+  "sync-reviews": { key: number; value: ReviewDraft };
+}
+
+// Explicit union rather than `keyof ReviewsDB` — DBSchema's base index signature
+// would otherwise widen the key type to `string`.
 export type StoreName = "restaurants" | "reviews" | "sync-reviews";
 
-const dbPromise = openDB("restaurants-store", 7, {
+const dbPromise = openDB<ReviewsDB>("restaurants-store", 7, {
   upgrade(db, oldVersion) {
     if (!db.objectStoreNames.contains("restaurants")) {
       db.createObjectStore("restaurants", { keyPath: "id" });
@@ -22,48 +32,42 @@ const dbPromise = openDB("restaurants-store", 7, {
   }
 });
 
-export async function writeItem<T>(storeName: StoreName, item: T): Promise<void> {
+export async function writeItem<K extends StoreName>(
+  storeName: K,
+  item: ReviewsDB[K]["value"]
+): Promise<void> {
   const db = await dbPromise;
-  const tx = db.transaction(storeName, "readwrite");
-  tx.objectStore(storeName).put(item);
-  return tx.done;
+  await db.put(storeName, item);
 }
 
-// `any` default: stored shapes vary by call site, and callers that care pass an
-// explicit type argument (e.g. getItems<Restaurant>). Keeps ad-hoc reads ergonomic.
-export async function getItems<T = any>(storeName: StoreName): Promise<T[]> {
+export async function getItems<K extends StoreName>(
+  storeName: K
+): Promise<ReviewsDB[K]["value"][]> {
   const db = await dbPromise;
-  return db.transaction(storeName, "readonly").objectStore(storeName).getAll() as Promise<T[]>;
+  return db.getAll(storeName);
 }
 
-export async function getItem<T = any>(
-  storeName: StoreName,
+export async function getItem<K extends StoreName>(
+  storeName: K,
   id: number | string
-): Promise<T | undefined> {
+): Promise<ReviewsDB[K]["value"] | undefined> {
   const validID = typeof id === "number" ? id : Number(id);
   const db = await dbPromise;
-  return db
-    .transaction(storeName, "readonly")
-    .objectStore(storeName)
-    .get(validID) as Promise<T | undefined>;
+  return db.get(storeName, validID);
 }
 
 export async function deleteItems(storeName: StoreName): Promise<void> {
   const db = await dbPromise;
-  const tx = db.transaction(storeName, "readwrite");
-  tx.objectStore(storeName).clear();
-  return tx.done;
+  await db.clear(storeName);
 }
 
 export async function deleteItem(storeName: StoreName, id: number): Promise<void> {
   const db = await dbPromise;
-  const tx = db.transaction(storeName, "readwrite");
-  tx.objectStore(storeName).delete(id);
-  return tx.done;
+  await db.delete(storeName, id);
 }
 
 /** A raw review as it may arrive from the API, with loosely-typed fields. */
-interface RawReview {
+export interface RawReview {
   id: number | string;
   name: unknown;
   rating: number | string;

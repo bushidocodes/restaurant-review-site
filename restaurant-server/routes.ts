@@ -29,6 +29,17 @@ import type {
 
 const now = (): string => new Date().toISOString();
 
+// node:sqlite returns rows as `Record<string, SQLOutputValue>`. These two helpers
+// centralize the unavoidable cast to our typed row shapes in a single place, so
+// the handlers below stay free of inline `as` assertions.
+function one<T>(db: DatabaseSync, sql: string, ...params: SQLInputValue[]): T | undefined {
+  return db.prepare(sql).get(...params) as unknown as T | undefined;
+}
+
+function all<T>(db: DatabaseSync, sql: string, ...params: SQLInputValue[]): T[] {
+  return db.prepare(sql).all(...params) as unknown as T[];
+}
+
 // Row → API object. SQLite stores latlng/operating_hours as JSON text and
 // is_favorite as 0/1, so unpack those back into the shapes the client expects.
 function toRestaurant(row: RestaurantRow): Restaurant {
@@ -90,7 +101,7 @@ function applyUpdate<TRow, TOut>(
   body: Record<string, unknown>,
   mapRow: (row: TRow) => TOut
 ): TOut | null {
-  const existing = db.prepare(`SELECT * FROM ${table} WHERE id = ?`).get(id);
+  const existing = one<TRow>(db, `SELECT * FROM ${table} WHERE id = ?`, id);
   if (!existing) return null;
 
   const sets: string[] = [];
@@ -106,8 +117,8 @@ function applyUpdate<TRow, TOut>(
   values.push(id);
 
   db.prepare(`UPDATE ${table} SET ${sets.join(", ")} WHERE id = ?`).run(...values);
-  const row = db.prepare(`SELECT * FROM ${table} WHERE id = ?`).get(id) as TRow;
-  return mapRow(row);
+  // The row necessarily exists — `existing` was found above and the UPDATE keeps it.
+  return mapRow(one<TRow>(db, `SELECT * FROM ${table} WHERE id = ?`, id)!);
 }
 
 export function createApiRouter(db: DatabaseSync): Router {
@@ -116,16 +127,16 @@ export function createApiRouter(db: DatabaseSync): Router {
   // ----- Restaurants -----
 
   router.get("/restaurants", (_req, res) => {
-    const rows = db
-      .prepare("SELECT * FROM restaurants ORDER BY id")
-      .all() as unknown as RestaurantRow[];
+    const rows = all<RestaurantRow>(db, "SELECT * FROM restaurants ORDER BY id");
     res.json(rows.map(toRestaurant));
   });
 
   router.get("/restaurants/:id", (req, res) => {
-    const row = db
-      .prepare("SELECT * FROM restaurants WHERE id = ?")
-      .get(Number(req.params.id)) as RestaurantRow | undefined;
+    const row = one<RestaurantRow>(
+      db,
+      "SELECT * FROM restaurants WHERE id = ?",
+      Number(req.params.id)
+    );
     if (!row) return res.status(404).json({ error: "Restaurant not found" });
     res.json(toRestaurant(row));
   });
@@ -153,9 +164,11 @@ export function createApiRouter(db: DatabaseSync): Router {
         ts,
         ts
       );
-    const created = db
-      .prepare("SELECT * FROM restaurants WHERE id = ?")
-      .get(Number(info.lastInsertRowid)) as unknown as RestaurantRow;
+    const created = one<RestaurantRow>(
+      db,
+      "SELECT * FROM restaurants WHERE id = ?",
+      Number(info.lastInsertRowid)
+    )!;
     res.status(201).json(toRestaurant(created));
   });
 
@@ -174,9 +187,7 @@ export function createApiRouter(db: DatabaseSync): Router {
 
   router.delete("/restaurants/:id", (req, res) => {
     const id = Number(req.params.id);
-    const row = db
-      .prepare("SELECT * FROM restaurants WHERE id = ?")
-      .get(id) as RestaurantRow | undefined;
+    const row = one<RestaurantRow>(db, "SELECT * FROM restaurants WHERE id = ?", id);
     if (!row) return res.status(404).json({ error: "Restaurant not found" });
     db.prepare("DELETE FROM restaurants WHERE id = ?").run(id);
     res.json(toRestaurant(row));
@@ -186,20 +197,23 @@ export function createApiRouter(db: DatabaseSync): Router {
 
   router.get("/reviews", (req, res) => {
     const { restaurant_id } = req.query;
-    const rows = (
+    const rows =
       restaurant_id !== undefined
-        ? db
-            .prepare("SELECT * FROM reviews WHERE restaurant_id = ? ORDER BY id")
-            .all(Number(restaurant_id))
-        : db.prepare("SELECT * FROM reviews ORDER BY id").all()
-    ) as unknown as ReviewRow[];
+        ? all<ReviewRow>(
+            db,
+            "SELECT * FROM reviews WHERE restaurant_id = ? ORDER BY id",
+            Number(restaurant_id)
+          )
+        : all<ReviewRow>(db, "SELECT * FROM reviews ORDER BY id");
     res.json(rows.map(toReview));
   });
 
   router.get("/reviews/:id", (req, res) => {
-    const row = db
-      .prepare("SELECT * FROM reviews WHERE id = ?")
-      .get(Number(req.params.id)) as ReviewRow | undefined;
+    const row = one<ReviewRow>(
+      db,
+      "SELECT * FROM reviews WHERE id = ?",
+      Number(req.params.id)
+    );
     if (!row) return res.status(404).json({ error: "Review not found" });
     res.json(toReview(row));
   });
@@ -227,9 +241,11 @@ export function createApiRouter(db: DatabaseSync): Router {
         ts,
         ts
       );
-    const created = db
-      .prepare("SELECT * FROM reviews WHERE id = ?")
-      .get(Number(info.lastInsertRowid)) as unknown as ReviewRow;
+    const created = one<ReviewRow>(
+      db,
+      "SELECT * FROM reviews WHERE id = ?",
+      Number(info.lastInsertRowid)
+    )!;
     res.status(201).json(toReview(created));
   });
 
@@ -248,9 +264,7 @@ export function createApiRouter(db: DatabaseSync): Router {
 
   router.delete("/reviews/:id", (req, res) => {
     const id = Number(req.params.id);
-    const row = db
-      .prepare("SELECT * FROM reviews WHERE id = ?")
-      .get(id) as ReviewRow | undefined;
+    const row = one<ReviewRow>(db, "SELECT * FROM reviews WHERE id = ?", id);
     if (!row) return res.status(404).json({ error: "Review not found" });
     db.prepare("DELETE FROM reviews WHERE id = ?").run(id);
     res.json(toReview(row));

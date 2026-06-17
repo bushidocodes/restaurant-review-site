@@ -12,8 +12,8 @@ export default class CreateReviewModal {
   form: HTMLFormElement;
   closeBtn: HTMLElement;
   internalFocusableEls: NodeListOf<HTMLElement>;
-  firstFocusableEl: HTMLElement;
-  lastFocusableEl: HTMLElement;
+  firstFocusableEl: HTMLElement | undefined;
+  lastFocusableEl: HTMLElement | undefined;
   focusedElBeforeOpen: HTMLElement | null = null;
 
   constructor({ restaurantID, onSubmit }: CreateReviewModalOptions) {
@@ -70,7 +70,7 @@ export default class CreateReviewModal {
     window.setTimeout(() => {
       this.focusedElBeforeOpen = document.activeElement as HTMLElement | null;
       this.modal.style.transform = "translateY(0)";
-      this.firstFocusableEl.focus();
+      this.firstFocusableEl?.focus();
     }, 50);
   }
 
@@ -134,13 +134,13 @@ export default class CreateReviewModal {
     const handleBackwardTab = () => {
       if (document.activeElement === this.firstFocusableEl) {
         e.preventDefault();
-        this.lastFocusableEl.focus();
+        this.lastFocusableEl?.focus();
       }
     };
     const handleForwardTab = () => {
       if (document.activeElement === this.lastFocusableEl) {
         e.preventDefault();
-        this.firstFocusableEl.focus();
+        this.firstFocusableEl?.focus();
       }
     };
 
