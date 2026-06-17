@@ -4,19 +4,28 @@
   "version": "1.0.0",
   "description": "Restaurant Reviews API — a small Express + SQLite JSON backend",
   "type": "module",
-  "main": "app.js",
+  "main": "app.ts",
   "scripts": {
-    "start": "node app.js",
-    "dev": "node --watch app.js"
+    "start": "tsx app.ts",
+    "dev": "tsx watch app.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "express": "^5.2.1",
     "express-session": "^1.18.2",
-    "morgan": "^1.11.0"
+    "morgan": "^1.11.0",
+    "tsx": "^4.22.4"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bushidocodes/restaurant-review-site.git"
   },
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^25.9.3",
+    "typescript": "^6.0.3"
+  }
 }

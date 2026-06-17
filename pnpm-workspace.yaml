@@ -2,4 +2,5 @@ packages:
   - '.'
   - 'restaurant-server'
 allowBuilds:
+  esbuild: true
   sharp: true

@@ -1,5 +1,22 @@
+import type { ReviewDraft } from "./types";
+
+export interface CreateReviewModalOptions {
+  restaurantID: string | null;
+  onSubmit: (postBody: ReviewDraft) => void | Promise<void>;
+}
+
 export default class CreateReviewModal {
-  constructor({ restaurantID, onSubmit }) {
+  onSubmit: (postBody: ReviewDraft) => void | Promise<void>;
+  restaurantID: string | null;
+  modal: HTMLElement;
+  form: HTMLFormElement;
+  closeBtn: HTMLElement;
+  internalFocusableEls: NodeListOf<HTMLElement>;
+  firstFocusableEl: HTMLElement;
+  lastFocusableEl: HTMLElement;
+  focusedElBeforeOpen: HTMLElement | null = null;
+
+  constructor({ restaurantID, onSubmit }: CreateReviewModalOptions) {
     // args
     this.onSubmit = onSubmit;
     this.restaurantID = restaurantID;
@@ -12,10 +29,10 @@ export default class CreateReviewModal {
     this.formSubmissionHandler = this.formSubmissionHandler.bind(this);
     this.handleKeyDown = this.handleKeyDown.bind(this);
     // grab DOM
-    this.modal = document.querySelector("#create-review");
-    this.form = document.querySelector("#create-review-form");
-    this.closeBtn = document.querySelector("#close-create-review-modal-btn");
-    this.internalFocusableEls = this.modal.querySelectorAll(
+    this.modal = document.querySelector("#create-review") as HTMLElement;
+    this.form = document.querySelector("#create-review-form") as HTMLFormElement;
+    this.closeBtn = document.querySelector("#close-create-review-modal-btn") as HTMLElement;
+    this.internalFocusableEls = this.modal.querySelectorAll<HTMLElement>(
       'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]'
     );
     this.firstFocusableEl = this.internalFocusableEls[0];
@@ -31,9 +48,9 @@ export default class CreateReviewModal {
     this.form.addEventListener("submit", this.formSubmissionHandler);
   }
   getFormState() {
-    const name = document.querySelector("#name").value;
-    const rating = document.querySelector("#rating").value;
-    const comments = document.querySelector("#comments").value;
+    const name = (document.querySelector("#name") as HTMLInputElement).value;
+    const rating = (document.querySelector("#rating") as HTMLInputElement).value;
+    const comments = (document.querySelector("#comments") as HTMLTextAreaElement).value;
     return {
       name,
       restaurant_id: Number(this.restaurantID),
@@ -42,39 +59,39 @@ export default class CreateReviewModal {
     };
   }
 
-  clearFormState() {
-    document.querySelector("#name").value = "";
-    document.querySelector("#rating").value = "";
-    document.querySelector("#comments").value = "";
+  clearFormState(): void {
+    (document.querySelector("#name") as HTMLInputElement).value = "";
+    (document.querySelector("#rating") as HTMLInputElement).value = "";
+    (document.querySelector("#comments") as HTMLTextAreaElement).value = "";
   }
 
-  open() {
+  open(): void {
     this.modal.removeAttribute("hidden");
     window.setTimeout(() => {
-      this.focusedElBeforeOpen = document.activeElement;
+      this.focusedElBeforeOpen = document.activeElement as HTMLElement | null;
       this.modal.style.transform = "translateY(0)";
       this.firstFocusableEl.focus();
     }, 50);
   }
 
-  close() {
+  close(): void {
     this.modal.style.transform = "translateY(100vh)";
-    this.focusedElBeforeOpen.focus();
+    this.focusedElBeforeOpen?.focus();
     window.setTimeout(() => {
-      this.modal.setAttribute("hidden", true);
+      this.modal.setAttribute("hidden", "true");
     }, 150);
   }
 
-  closeBtnHandler(evt) {
+  closeBtnHandler(evt: Event): void {
     evt.preventDefault();
     this.close();
   }
 
-  submitForm() {
+  submitForm(): void {
     const postBody = this.getFormState();
-    const nameEl = document.querySelector("#name");
-    const ratingEl = document.querySelector("#rating");
-    const commentsEl = document.querySelector("#comments");
+    const nameEl = document.querySelector("#name") as HTMLInputElement;
+    const ratingEl = document.querySelector("#rating") as HTMLInputElement;
+    const commentsEl = document.querySelector("#comments") as HTMLTextAreaElement;
 
     if (!postBody.name.trim()) {
       nameEl.setCustomValidity("Please enter your name.");
@@ -103,13 +120,13 @@ export default class CreateReviewModal {
     this.clearFormState();
   }
 
-  formSubmissionHandler(evt) {
+  formSubmissionHandler(evt: Event): void {
     evt.preventDefault();
     this.submitForm();
   }
 
   // Based on https://bitsofco.de/accessible-modal-dialog/
-  handleKeyDown(e) {
+  handleKeyDown(e: KeyboardEvent): void {
     const KEY_TAB = 9;
     const KEY_ESC = 27;
     const KEY_ENTER = 13;

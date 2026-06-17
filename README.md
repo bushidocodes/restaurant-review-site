@@ -58,16 +58,21 @@ pnpm run serve:api
 
 #### Build tooling
 
-The front end is built with [Vite](https://vitejs.dev/) (`vite.config.js`). It's a multi-page
+The whole codebase is [TypeScript](https://www.typescriptlang.org/). The front end and tests are
+type-stripped on the fly by Vite/Vitest, and the API runs through [`tsx`](https://tsx.is/); no
+build step is needed to run anything. `pnpm typecheck` runs `tsc --noEmit` across the browser app,
+the service worker, the build tooling, and the API.
+
+The front end is built with [Vite](https://vitejs.dev/) (`vite.config.ts`). It's a multi-page
 app — `src/index.html` and `src/restaurant.html` are the two entry points. `pnpm run dev:ui`
 starts the Vite dev server (with HMR); `pnpm run build:ui` emits the production bundle to `dist/`,
-which `serve.js` serves.
+which `serve.ts` serves.
 
-The service worker (`src/sw.js`) is a hand-written Workbox service worker. [`vite-plugin-pwa`](https://vite-pwa-org.netlify.app/)
+The service worker (`src/sw.ts`) is a hand-written Workbox service worker. [`vite-plugin-pwa`](https://vite-pwa-org.netlify.app/)
 runs it through the `injectManifest` strategy: it compiles the worker and injects the precache
 manifest into `self.__WB_MANIFEST`, so the ESM `workbox-*` imports work without a separate build
 pass. Responsive restaurant images are generated at build time by
-[`vite-imagetools`](https://github.com/JonasKruckenberg/imagetools) (see `src/js/imageLoader.js`).
+[`vite-imagetools`](https://github.com/JonasKruckenberg/imagetools) (see `src/js/imageLoader.ts`).
 
 I've included my Lighthouse Report in case we have differing results.
 On my last run, I got

@@ -6,8 +6,9 @@ import {
 import { getImage } from "./imageLoader";
 import { initMap, mapMarkerForRestaurant } from "./mapsLoader";
 import CreateReviewModal from "./CreateReviewModal";
+import type { DisplayReview, OperatingHours, Restaurant } from "./types";
 
-import { html, render } from "lit-html";
+import { html, render, type TemplateResult } from "lit-html";
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   // SW ships only in the production build; `type: "module"` matches the `es`
@@ -26,7 +27,7 @@ window.state = {
   mapClosed: true
 };
 
-function getParam(name) {
+function getParam(name: string): string | null {
   return new URLSearchParams(window.location.search).get(name);
 }
 
@@ -45,7 +46,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       const savedReview = await postReview(postBody);
       if (savedReview) {
         // Online: server confirmed the review — append it immediately without a round-trip
-        const reviews = [...(window.state.reviews || []), { ...savedReview, isDraft: false }];
+        const reviews: DisplayReview[] = [
+          ...(window.state.reviews || []),
+          { ...savedReview, isDraft: false }
+        ];
         fillReviewsHTML(reviews);
         window.state.reviews = reviews;
       } else {
@@ -55,7 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
-  document.querySelector("#add-review-btn").addEventListener("click", () => CRM.open());
+  (document.querySelector("#add-review-btn") as HTMLElement).addEventListener("click", () => CRM.open());
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("message", event => {
@@ -70,8 +74,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       .catch(() => {});
   }
 
-  const toggleMapBtn = document.querySelector("#maptoggle");
-  const mapContainer = document.querySelector("#map-container");
+  const toggleMapBtn = document.querySelector("#maptoggle") as HTMLElement;
+  const mapContainer = document.querySelector("#map-container") as HTMLElement;
 
   toggleMapBtn.addEventListener("click", () => {
     if (window.state.mapClosed) {
@@ -87,55 +91,56 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-function loadMap() {
-  initMap(document.getElementById("map"), {
+function loadMap(): void {
+  const restaurant = window.state.restaurant;
+  if (!restaurant?.latlng) return;
+  initMap(document.getElementById("map") as HTMLElement, {
     zoom: 16,
-    center: window.state.restaurant.latlng,
+    center: restaurant.latlng,
     scrollwheel: false
   }).then(() => {
-    const marker = mapMarkerForRestaurant(window.state.restaurant, window.state.map);
+    const marker = mapMarkerForRestaurant(restaurant, window.state.map!);
     window.state.markers.push(marker);
   });
 }
 
-async function fetchRestaurantFromURL() {
+async function fetchRestaurantFromURL(): Promise<Restaurant> {
   if (window.state.restaurant) return window.state.restaurant;
   const id = getParam("id");
   if (!id) throw new Error("No restaurant id in URL");
   const restaurant = await fetchRestaurantById(id);
+  if (!restaurant) throw new Error(`Restaurant ${id} not found`);
   window.state.restaurant = restaurant;
   fillRestaurantHTML(restaurant);
   return restaurant;
 }
 
-function fillRestaurantHTML(restaurant = window.state.restaurant) {
-  const name = document.getElementById("restaurant-name");
+function fillRestaurantHTML(restaurant: Restaurant): void {
+  const name = document.getElementById("restaurant-name") as HTMLElement;
   name.textContent = restaurant.name;
 
-  const address = document.getElementById("restaurant-address");
-  address.textContent = restaurant.address;
+  const address = document.getElementById("restaurant-address") as HTMLElement;
+  address.textContent = restaurant.address ?? "";
 
   const imageFile = getImage(restaurant.photograph);
-  const image = document.getElementById("restaurant-img");
+  const image = document.getElementById("restaurant-img") as HTMLImageElement;
   image.className = "restaurant-img";
   image.setAttribute("alt", `Image of ${restaurant.name}`);
   image.srcset = imageFile.srcSet;
   image.src = imageFile.src;
 
-  const cuisine = document.getElementById("restaurant-cuisine");
-  cuisine.textContent = restaurant.cuisine_type;
+  const cuisine = document.getElementById("restaurant-cuisine") as HTMLElement;
+  cuisine.textContent = restaurant.cuisine_type ?? "";
 
   if (restaurant.operating_hours) {
-    fillRestaurantHoursHTML();
+    fillRestaurantHoursHTML(restaurant.operating_hours);
   }
 }
 
-function fillRestaurantHoursHTML(
-  operatingHours = window.state.restaurant.operating_hours
-) {
-  const hours = document.getElementById("restaurant-hours");
+function fillRestaurantHoursHTML(operatingHours: OperatingHours): void {
+  const hours = document.getElementById("restaurant-hours") as HTMLElement;
   hours.innerHTML = "";
-  for (let key in operatingHours) {
+  for (const key in operatingHours) {
     const row = document.createElement("tr");
     const day = document.createElement("td");
     day.textContent = key;
@@ -147,23 +152,23 @@ function fillRestaurantHoursHTML(
   }
 }
 
-const NoReviews = () => html`<p>No Reviews yet!</p>`;
+const NoReviews = (): TemplateResult => html`<p>No Reviews yet!</p>`;
 
-const ReviewList = reviews => html`
+const ReviewList = (reviews: DisplayReview[]): TemplateResult => html`
   ${reviews.map(review => (review.isDraft ? DraftReview(review) : Review(review)))}
 `;
 
-const Review = review => html`
+const Review = (review: DisplayReview): TemplateResult => html`
   <li>
     <p>${review.name}</p>
-    <p>Created At: ${new Date(review.createdAt).toLocaleDateString()} ${new Date(review.createdAt).toLocaleTimeString()}</p>
-    <p>Updated At: ${new Date(review.updatedAt).toLocaleDateString()} ${new Date(review.updatedAt).toLocaleTimeString()}</p>
+    <p>Created At: ${new Date(review.createdAt ?? 0).toLocaleDateString()} ${new Date(review.createdAt ?? 0).toLocaleTimeString()}</p>
+    <p>Updated At: ${new Date(review.updatedAt ?? 0).toLocaleDateString()} ${new Date(review.updatedAt ?? 0).toLocaleTimeString()}</p>
     <p>Rating: ${review.rating}</p>
     <p>${review.comments}</p>
   </li>
 `;
 
-const DraftReview = review => html`
+const DraftReview = (review: DisplayReview): TemplateResult => html`
   <li>
     <p>DRAFT</p>
     <p>${review.name}</p>
@@ -172,8 +177,9 @@ const DraftReview = review => html`
   </li>
 `;
 
-async function fetchReviewsFromURL() {
+async function fetchReviewsFromURL(): Promise<void> {
   const id = getParam("id");
+  if (!id) return;
   try {
     const reviews = await fetchReviewsForRestaurant(id);
     fillReviewsHTML(reviews);
@@ -183,15 +189,15 @@ async function fetchReviewsFromURL() {
   }
 }
 
-function fillReviewsHTML(reviews = window.state.reviews) {
-  const reviewsList = document.getElementById("reviews-list");
+function fillReviewsHTML(reviews: DisplayReview[] | undefined = window.state.reviews): void {
+  const reviewsList = document.getElementById("reviews-list") as HTMLElement;
   render(reviews && reviews.length ? ReviewList(reviews) : NoReviews(), reviewsList);
 }
 
-function fillBreadcrumb(restaurant = window.state.restaurant) {
-  const breadcrumb = document.getElementById("breadcrumb");
+function fillBreadcrumb(restaurant: Restaurant): void {
+  const breadcrumb = document.getElementById("breadcrumb") as HTMLElement;
   while (breadcrumb.children.length > 1) {
-    breadcrumb.removeChild(breadcrumb.lastChild);
+    breadcrumb.removeChild(breadcrumb.lastChild as Node);
   }
   const anchor = document.createElement("a");
   anchor.setAttribute("href", `restaurant.html?id=${restaurant.id}`);

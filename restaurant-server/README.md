@@ -5,6 +5,9 @@ A small JSON REST API for the Restaurant Reviews app. Built with
 [`node:sqlite`](https://nodejs.org/api/sqlite.html) module — no native add-ons to
 compile and nothing to install beyond the npm dependencies.
 
+Written in TypeScript and run directly with [`tsx`](https://tsx.is/) (no build
+step). Type-check with `npm run typecheck`.
+
 ## Running it
 
 From the **repo root** (this is a pnpm workspace, so one install covers the UI
@@ -19,7 +22,7 @@ Or directly:
 
 ```bash
 cd restaurant-server
-node app.js
+npm start               # runs `tsx app.ts`
 ```
 
 By default the API runs on an **in-memory** database that is seeded from
@@ -42,7 +45,7 @@ with no configuration at all.
 ### Enabling persistence
 
 ```bash
-DATABASE_PATH=./data/reviews.db node app.js
+DATABASE_PATH=./data/reviews.db npm start
 ```
 
 The parent directory is created automatically. The file is seeded with the
@@ -51,7 +54,7 @@ the bundled seed data, delete the file and restart:
 
 ```bash
 rm -f ./data/reviews.db*
-node app.js
+npm start
 ```
 
 ## Endpoints

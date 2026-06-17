@@ -1,9 +1,9 @@
 /**
- * app.js
+ * app.ts
  *
  * Entry point for the Restaurant Reviews API. Start it with:
  *
- *   node app.js
+ *   tsx app.ts        (or: npm start)
  *
  * Configuration (all optional — the defaults are tuned for `git clone` + run):
  *
@@ -18,18 +18,22 @@
  *                   Set a real value in production.          dev fallback
  */
 
-import express from "express";
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import session from "express-session";
 import morgan from "morgan";
 import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
-import { openDatabase } from "./db.js";
-import { createApiRouter } from "./routes.js";
+import { openDatabase } from "./db.ts";
+import { createApiRouter } from "./routes.ts";
 
 // Load the shared repo-root `.env` (the same file Vite reads) if it exists, so
-// the documented env vars work with a plain `node app.js`. Real environment
+// the documented env vars work with a plain `tsx app.ts`. Real environment
 // variables (CI, `docker run -e`, your shell) take precedence over the file.
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const envPath = path.resolve(__dirname, "..", ".env");
@@ -51,8 +55,8 @@ app.use(express.json());
 
 // CORS: when CORS_ORIGIN is set, allow only those origins; otherwise reflect
 // the request origin so the app works on whatever local port you serve from.
-app.use((req, res, next) => {
-  const allowed = CORS_ORIGIN ? CORS_ORIGIN.split(",").map(o => o.trim()) : null;
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const allowed = CORS_ORIGIN ? CORS_ORIGIN.split(",").map((o) => o.trim()) : null;
   const origin = req.headers.origin;
   if (!allowed || (origin && allowed.includes(origin))) {
     res.setHeader("Access-Control-Allow-Origin", origin || "*");
@@ -82,18 +86,18 @@ app.use(
   })
 );
 
-app.get("/healthcheck", (req, res) => res.sendStatus(200));
+app.get("/healthcheck", (_req, res) => res.sendStatus(200));
 
 app.use(createApiRouter(db));
 
 // JSON 404 for unmatched routes.
-app.use((req, res) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: "Not found" });
 });
 
-// Centralized JSON error handler.
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+// Centralized JSON error handler. Express identifies it by its four-parameter
+// arity, so `next` must stay in the signature even though it is unused.
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error("[api] Unhandled error:", err);
   res.status(500).json({ error: "Internal server error" });
 });
