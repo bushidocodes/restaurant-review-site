@@ -4,7 +4,7 @@
     {
       "name": "ui",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["serve.js"],
+      "runtimeArgs": ["--import", "tsx", "serve.ts"],
       "port": 7000
     },
     {
@@ -17,7 +17,7 @@
     {
       "name": "api",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["restaurant-server/app.js", "--port=1338"],
+      "runtimeArgs": ["--import", "tsx", "restaurant-server/app.ts", "--port=1338"],
       "port": 1338
     }
   ]

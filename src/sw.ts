@@ -1,6 +1,7 @@
+/// <reference lib="webworker" />
 import { registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate } from "workbox-strategies";
-import { precacheAndRoute, matchPrecache } from "workbox-precaching";
+import { precacheAndRoute, matchPrecache, type PrecacheEntry } from "workbox-precaching";
 import { ExpirationPlugin } from "workbox-expiration";
 import {
   deleteItem,
@@ -8,8 +9,33 @@ import {
   writeItem,
   getItems,
   sanitizeReview
-} from "./js/utils.js";
-import { postReviewDirectly } from "./js/dbhelper.js";
+} from "./js/utils";
+import { postReviewDirectly } from "./js/dbhelper";
+import type { ReviewDraft } from "./js/types";
+
+// vite-plugin-pwa injects the precache manifest by string-replacing the literal
+// `self.__WB_MANIFEST`, so that token must appear verbatim below. The SW config
+// includes both the DOM and WebWorker libs (so the DOM-using modules this file
+// imports type-check), which leaves `self` typed as `Window`; augment both
+// global scopes so `self.__WB_MANIFEST` resolves either way.
+declare global {
+  interface Window {
+    readonly __WB_MANIFEST: (string | PrecacheEntry)[];
+  }
+  interface WorkerGlobalScope {
+    readonly __WB_MANIFEST: (string | PrecacheEntry)[];
+  }
+}
+
+// `self` is typed as `WorkerGlobalScope`; alias it to the service-worker scope so
+// `clients` and the `sync` event type-check.
+const swScope = self as unknown as ServiceWorkerGlobalScope;
+
+// The Background Sync `SyncEvent` is not in the standard TS lib.
+interface SyncEvent extends ExtendableEvent {
+  readonly tag: string;
+  readonly lastChance: boolean;
+}
 
 const SERVER = import.meta.env.API_SERVER || "http://localhost:1337";
 const SERVER_ORIGIN = new URL(SERVER).origin;
@@ -55,14 +81,14 @@ registerRoute(
 // Intercept restaurants list — update IDB as a side effect
 registerRoute(
   ({ url }) => url.pathname === "/restaurants",
-  async ({ event }) => {
+  async ({ request }) => {
     try {
-      const res = await fetch(event.request);
+      const res = await fetch(request);
       if (res.ok) {
         const cloneRes = res.clone();
         deleteItems("restaurants").then(() =>
           cloneRes.json().then(resAsJSON => {
-            resAsJSON.forEach(item => writeItem("restaurants", item));
+            resAsJSON.forEach((item: unknown) => writeItem("restaurants", item));
           })
         );
       }
@@ -75,12 +101,12 @@ registerRoute(
 );
 
 // Intercept individual restaurant fetches — update IDB as a side effect
-const restaurantByIDMatcher = ({ url }) =>
+const restaurantByIDMatcher = ({ url }: { url: URL }): boolean =>
   url.origin === SERVER_ORIGIN && /^\/restaurants\/[0-9]+$/.test(url.pathname);
 
-const restaurantByIDHandler = async ({ event }) => {
+const restaurantByIDHandler = async ({ request }: { request: Request }): Promise<Response> => {
   try {
-    const res = await fetch(event.request);
+    const res = await fetch(request);
     if (res.ok) {
       res
         .clone()
@@ -91,6 +117,7 @@ const restaurantByIDHandler = async ({ event }) => {
     return res;
   } catch (err) {
     console.log(err);
+    return Promise.reject(err);
   }
 };
 
@@ -104,14 +131,16 @@ registerRoute(
     url.origin === SERVER_ORIGIN &&
     url.pathname === "/reviews/" &&
     url.searchParams.has("restaurant_id"),
-  async ({ event }) => {
+  async ({ request }) => {
     try {
-      const res = await fetch(event.request);
+      const res = await fetch(request);
       if (res.ok) {
         res
           .clone()
           .json()
-          .then(dirtyReviews => dirtyReviews.map(dirtyReview => sanitizeReview(dirtyReview)))
+          .then((dirtyReviews: any[]) =>
+            dirtyReviews.map(dirtyReview => sanitizeReview(dirtyReview))
+          )
           .then(cleanReviews => {
             cleanReviews.forEach(review => writeItem("reviews", review));
           });
@@ -119,15 +148,16 @@ registerRoute(
       return res;
     } catch (err) {
       console.log(err);
+      return Promise.reject(err);
     }
   },
   "GET"
 );
 
-function send_message_to_client(client, msg) {
+function send_message_to_client(client: Client, msg: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const msg_chan = new MessageChannel();
-    msg_chan.port1.onmessage = function(event) {
+    msg_chan.port1.onmessage = (event: MessageEvent) => {
       if (event.data.error) {
         reject(event.data.error);
       } else {
@@ -138,8 +168,8 @@ function send_message_to_client(client, msg) {
   });
 }
 
-function send_message_to_all_clients(msg) {
-  return clients.matchAll().then(clients => {
+function send_message_to_all_clients(msg: string): Promise<void> {
+  return swScope.clients.matchAll().then(clients => {
     clients.forEach(client => {
       send_message_to_client(client, msg).then(m =>
         console.log(`[SW]: Received message from client ` + m)
@@ -151,12 +181,13 @@ function send_message_to_all_clients(msg) {
 const SUBMIT_REVIEWS_TIMEOUT = 1000;
 let notifiedClient = false;
 
-function syncNewReviews() {
+function syncNewReviews(): Promise<unknown> {
   notifiedClient = false;
-  return getItems("sync-reviews").then(reviews => {
+  return getItems<ReviewDraft & { localId: number }>("sync-reviews").then(reviews => {
     if (reviews && reviews.length > 0) {
       const arrOfPromises = reviews.map(review => {
-        const { localId, ...reviewBody } = review;
+        const { localId: _localId, ...reviewBody } = review;
+        void _localId;
         return postReviewDirectly(reviewBody)
           .then(resBody => {
             console.log(`[SW] Synced review with server`, resBody);
@@ -198,12 +229,13 @@ function syncNewReviews() {
   });
 }
 
-self.addEventListener("sync", function(event) {
-  console.log(`[SW] Receiving sync event ${event.tag}`);
-  switch (event.tag) {
+swScope.addEventListener("sync", (event: Event) => {
+  const syncEvent = event as SyncEvent;
+  console.log(`[SW] Receiving sync event ${syncEvent.tag}`);
+  switch (syncEvent.tag) {
     case "sync-new-reviews":
-      return event.waitUntil(syncNewReviews().catch(e => console.log(e)));
+      return syncEvent.waitUntil(syncNewReviews().catch(e => console.log(e)));
     default:
-      console.log(`[SW] Error: ${event.tag} is an unknown sync tag`);
+      console.log(`[SW] Error: ${syncEvent.tag} is an unknown sync tag`);
   }
 });

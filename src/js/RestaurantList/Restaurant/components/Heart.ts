@@ -1,8 +1,8 @@
-import { html } from "lit-html";
+import { html, type TemplateResult } from "lit-html";
 
 // Modified from https://codepen.io/davidkizler/pen/QwyWyg
 
-function Heart(height, width, isFavorite) {
+function Heart(height: number, width: number, isFavorite: boolean | undefined): TemplateResult {
   return html`
   <svg
     x="0px"

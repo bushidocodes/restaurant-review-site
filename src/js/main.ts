@@ -32,14 +32,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     fetchAndFillCuisines()
   ]);
 
-  document.getElementById("neighborhoods-select").addEventListener("change", updateRestaurants);
-  document.getElementById("cuisines-select").addEventListener("change", updateRestaurants);
+  document.getElementById("neighborhoods-select")?.addEventListener("change", updateRestaurants);
+  document.getElementById("cuisines-select")?.addEventListener("change", updateRestaurants);
 });
 
-async function fetchAndFillNeighborhoods() {
+async function fetchAndFillNeighborhoods(): Promise<void> {
   try {
     const neighborhoods = await fetchNeighborhoods();
-    const select = document.getElementById("neighborhoods-select");
+    const select = document.getElementById("neighborhoods-select") as HTMLSelectElement;
     neighborhoods.forEach(neighborhood => {
       const option = document.createElement("option");
       option.textContent = neighborhood;
@@ -51,10 +51,10 @@ async function fetchAndFillNeighborhoods() {
   }
 }
 
-async function fetchAndFillCuisines() {
+async function fetchAndFillCuisines(): Promise<void> {
   try {
     const cuisines = await fetchCuisines();
-    const select = document.getElementById("cuisines-select");
+    const select = document.getElementById("cuisines-select") as HTMLSelectElement;
     cuisines.forEach(cuisine => {
       const option = document.createElement("option");
       option.textContent = cuisine;
@@ -66,19 +66,19 @@ async function fetchAndFillCuisines() {
   }
 }
 
-function loadMap() {
-  initMap(document.getElementById("map"), {
+function loadMap(): void {
+  initMap(document.getElementById("map") as HTMLElement, {
     zoom: 12,
     center: { lat: 40.722216, lng: -73.987501 },
     scrollwheel: false
   }).then(() => updateRestaurants());
 }
 
-export const updateRestaurants = async () => {
+export const updateRestaurants = async (): Promise<void> => {
   const { cuisine, neighborhood } = getSelectedCuisineAndNeighborhood();
   try {
     const filteredRestaurants = await fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood);
-    const restaurantListMountPoint = document.getElementById("restaurants-list");
+    const restaurantListMountPoint = document.getElementById("restaurants-list") as HTMLElement;
     render(RestaurantList(filteredRestaurants, updateRestaurants), restaurantListMountPoint);
     if (window.state.map) {
       window.state.markers.forEach(m => m.remove());
@@ -90,8 +90,8 @@ export const updateRestaurants = async () => {
   }
 };
 
-const toggleMapBtn = document.querySelector("#maptoggle");
-const mapContainer = document.querySelector("#map-container");
+const toggleMapBtn = document.querySelector("#maptoggle") as HTMLElement;
+const mapContainer = document.querySelector("#map-container") as HTMLElement;
 
 toggleMapBtn.addEventListener("click", () => {
   if (window.state.mapClosed) {

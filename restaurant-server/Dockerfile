@@ -23,4 +23,7 @@ EXPOSE 1337
 # No env vars are required. For persistence across restarts, set DATABASE_PATH
 # to a path on a mounted volume, e.g.:
 #   docker run -p 1337:1337 -e DATABASE_PATH=/data/reviews.db -v "$PWD/data:/data" ...
-CMD ["node", "server"]
+#
+# The sources are TypeScript; tsx (a production dependency) registers Node's
+# loader so .ts files run without a separate build step.
+CMD ["node", "--import", "tsx", "server.ts"]

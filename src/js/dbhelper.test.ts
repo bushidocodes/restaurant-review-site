@@ -13,8 +13,8 @@ import {
   postReview,
   postReviewViaSyncManager,
   fetchReviewsForRestaurant,
-} from "./dbhelper.js";
-import { deleteItems, writeItem } from "./utils.js";
+} from "./dbhelper";
+import { deleteItems, writeItem } from "./utils";
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -26,7 +26,7 @@ const RESTAURANTS = [
   { id: 3, name: "Kang Ho Dong",    neighborhood: "Queens",    cuisine_type: "Korean" },
 ];
 
-function makeFetch(data, { ok = true, status = 200 } = {}) {
+function makeFetch(data: unknown, { ok = true, status = 200 }: { ok?: boolean; status?: number } = {}) {
   return vi.fn().mockResolvedValue({
     ok,
     status,
@@ -100,7 +100,7 @@ describe("fetchRestaurantById", () => {
   it("returns a restaurant from the network", async () => {
     vi.stubGlobal("fetch", makeFetch(RESTAURANTS[0]));
     const result = await fetchRestaurantById(1);
-    expect(result.id).toBe(1);
+    expect(result?.id).toBe(1);
   });
 
   it("coerces a string id to number in the request URL", async () => {
@@ -113,14 +113,14 @@ describe("fetchRestaurantById", () => {
     await writeItem("restaurants", RESTAURANTS[2]);
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
     const result = await fetchRestaurantById(3);
-    expect(result.id).toBe(3);
+    expect(result?.id).toBe(3);
   });
 
   it("falls back to IDB when response is not ok", async () => {
     await writeItem("restaurants", RESTAURANTS[1]);
     vi.stubGlobal("fetch", makeFetch(null, { ok: false, status: 404 }));
     const result = await fetchRestaurantById(2);
-    expect(result.id).toBe(2);
+    expect(result?.id).toBe(2);
   });
 });
 
@@ -293,7 +293,7 @@ describe("postReviewDirectly", () => {
 // ---------------------------------------------------------------------------
 
 describe("postReviewViaSyncManager", () => {
-  let syncRegister;
+  let syncRegister: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
     syncRegister = vi.fn().mockResolvedValue(undefined);
@@ -316,7 +316,7 @@ describe("postReviewViaSyncManager", () => {
   it("writes the review to sync-reviews IDB store", async () => {
     const body = { restaurant_id: 1, name: "Queued", rating: 4, comments: "Later" };
     await postReviewViaSyncManager(body);
-    const { getItems } = await import("./utils.js");
+    const { getItems } = await import("./utils");
     const queued = await getItems("sync-reviews");
     expect(queued.some(r => r.name === "Queued")).toBe(true);
   });

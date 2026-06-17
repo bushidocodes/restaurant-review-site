@@ -6,7 +6,7 @@ import {
   deleteItems,
   deleteItem,
   sanitizeReview,
-} from "./utils.js";
+} from "./utils";
 
 const STORE = "restaurants";
 

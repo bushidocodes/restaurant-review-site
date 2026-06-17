@@ -6,12 +6,12 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
-    setupFiles: ["./src/test-setup.js"],
+    setupFiles: ["./src/test-setup.ts"],
     reporters: process.env.CI ? ["github-actions", "verbose"] : ["verbose"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
-      include: ["src/js/utils.js", "src/js/dbhelper.js", "src/js/imageLoader.js"],
+      include: ["src/js/utils.ts", "src/js/dbhelper.ts", "src/js/imageLoader.ts"],
       thresholds: {
         statements: 95,
         branches: 80,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getImage } from "./imageLoader.js";
+import { getImage } from "./imageLoader";
 
 describe("getImage", () => {
   it("returns srcSet and src for valid restaurant ids 1-10", () => {

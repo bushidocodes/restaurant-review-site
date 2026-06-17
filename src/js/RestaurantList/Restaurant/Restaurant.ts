@@ -1,9 +1,13 @@
-import { html } from "lit-html";
+import { html, type TemplateResult } from "lit-html";
 import { getImage } from "../../imageLoader";
 import { urlForRestaurant, updateRestaurant } from "../../dbhelper";
 import Heart from "./components/Heart";
+import type { Restaurant as RestaurantType } from "../../types";
 
-async function handleFavoriteClick(restaurant, onFavoriteToggle) {
+async function handleFavoriteClick(
+  restaurant: RestaurantType,
+  onFavoriteToggle: () => void
+): Promise<void> {
   try {
     await updateRestaurant({ id: restaurant.id, is_favorite: !restaurant.is_favorite });
     onFavoriteToggle();
@@ -12,7 +16,10 @@ async function handleFavoriteClick(restaurant, onFavoriteToggle) {
   }
 }
 
-function Restaurant(restaurant, onFavoriteToggle) {
+function Restaurant(
+  restaurant: RestaurantType,
+  onFavoriteToggle: () => void
+): TemplateResult {
   return html`
   <li>
   <img

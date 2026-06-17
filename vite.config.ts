@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Multi-page PWA. `root` is `src/`, so HTML entry points, the service-worker
 // source and the `public/` static dir all live under `src/`. The build emits to
-// the repo-root `dist/`, which `serve.js` serves in production.
+// the repo-root `dist/`, which `serve.ts` serves in production.
 export default defineConfig({
   root: "src",
   // Vite's default dev port; keep in sync with CORS_ORIGIN in .env.example.
@@ -31,19 +31,19 @@ export default defineConfig({
   plugins: [
     imagetools(),
     VitePWA({
-      // Bring-your-own service worker: vite-plugin-pwa compiles src/sw.js and
+      // Bring-your-own service worker: vite-plugin-pwa compiles src/sw.ts and
       // injects the precache manifest into self.__WB_MANIFEST.
       strategies: "injectManifest",
       srcDir: ".",
-      filename: "sw.js",
-      // The app registers /sw.js itself (main.js / restaurant_info.js), and ships
+      filename: "sw.ts",
+      // The app registers /sw.js itself (main.ts / restaurant_info.ts), and ships
       // its own src/public/manifest.json — so let the plugin do neither.
       injectRegister: false,
       manifest: false,
       injectManifest: {
         // Precache the app shell only (both HTML pages, JS, CSS) plus the web
         // manifest. Restaurant photos are runtime-cached (StaleWhileRevalidate in
-        // sw.js), matching the previous webpack InjectManifest scope.
+        // sw.ts), matching the previous webpack InjectManifest scope.
         globPatterns: ["**/*.{js,css,html}", "manifest.json"]
       },
       // No service worker in dev: the precaching SW serves stale navigations,

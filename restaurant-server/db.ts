@@ -1,5 +1,5 @@
 /**
- * db.js
+ * db.ts
  *
  * Opens a SQLite database using Node's built-in `node:sqlite` module (no native
  * dependency to compile, nothing to install). Creates the schema and seeds it
@@ -15,17 +15,41 @@ import { readFileSync, mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
+import type { RestaurantRow, ReviewRow } from "./types.ts";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** Shape of the bundled `seed-data.json`. */
+interface SeedData {
+  restaurants: Array<
+    Omit<RestaurantRow, "latlng" | "operating_hours" | "is_favorite"> & {
+      latlng?: { lat: number; lng: number } | null;
+      operating_hours?: Record<string, string> | null;
+      is_favorite?: boolean | number;
+    }
+  >;
+  reviews: ReviewRow[];
+}
+
+export interface OpenDatabaseOptions {
+  /**
+   * Absolute or relative path to a SQLite file. When omitted/null, an in-memory
+   * database is used.
+   */
+  databasePath?: string | null;
+}
+
+export interface OpenDatabaseResult {
+  db: DatabaseSync;
+  seeded: boolean;
+}
 
 /**
  * Open (and, if necessary, seed) the database.
- *
- * @param {object} [options]
- * @param {string|null} [options.databasePath] Absolute or relative path to a
- *   SQLite file. When omitted/null, an in-memory database is used.
- * @returns {{ db: import('node:sqlite').DatabaseSync, seeded: boolean }}
  */
-export function openDatabase({ databasePath = null } = {}) {
+export function openDatabase({
+  databasePath = null,
+}: OpenDatabaseOptions = {}): OpenDatabaseResult {
   const location = databasePath || ":memory:";
 
   // Make sure the parent directory exists for file-backed databases.
@@ -43,7 +67,7 @@ export function openDatabase({ databasePath = null } = {}) {
   return { db, seeded };
 }
 
-function createSchema(db) {
+function createSchema(db: DatabaseSync): void {
   db.exec(`
     CREATE TABLE IF NOT EXISTS restaurants (
       id              INTEGER PRIMARY KEY,
@@ -77,15 +101,17 @@ function createSchema(db) {
  * Seed restaurants and reviews from seed-data.json, but only when the
  * restaurants table is empty (so a persistent DB is left untouched on restart).
  *
- * @returns {boolean} true if seeding ran, false if the store already had data.
+ * @returns true if seeding ran, false if the store already had data.
  */
-function seedIfEmpty(db) {
-  const { count } = db.prepare("SELECT COUNT(*) AS count FROM restaurants").get();
+function seedIfEmpty(db: DatabaseSync): boolean {
+  const { count } = db
+    .prepare("SELECT COUNT(*) AS count FROM restaurants")
+    .get() as { count: number };
   if (count > 0) return false;
 
   const seed = JSON.parse(
     readFileSync(path.join(__dirname, "seed-data.json"), "utf8")
-  );
+  ) as SeedData;
 
   const insertRestaurant = db.prepare(`
     INSERT INTO restaurants
