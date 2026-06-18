@@ -38,6 +38,9 @@ interface SyncEvent extends ExtendableEvent {
   readonly lastChance: boolean;
 }
 
+/** Normalize an unknown thrown value into an `Error` for promise rejection. */
+const toError = (e: unknown): Error => (e instanceof Error ? e : new Error(String(e)));
+
 const SERVER = import.meta.env.API_SERVER || "http://localhost:1337";
 const SERVER_ORIGIN = new URL(SERVER).origin;
 
@@ -87,16 +90,18 @@ registerRoute(
       const res = await fetch(request);
       if (res.ok) {
         const cloneRes = res.clone();
-        deleteItems("restaurants").then(() =>
+        void deleteItems("restaurants").then(() =>
           cloneRes.json().then((resAsJSON: Restaurant[]) => {
-            resAsJSON.forEach(item => writeItem("restaurants", item));
+            resAsJSON.forEach(item => {
+              void writeItem("restaurants", item);
+            });
           })
         );
       }
       return res;
     } catch (err) {
       console.log(err);
-      return Promise.reject(err);
+      return Promise.reject(toError(err));
     }
   }
 );
@@ -118,7 +123,7 @@ const restaurantByIDHandler = async ({ request }: { request: Request }): Promise
     return res;
   } catch (err) {
     console.log(err);
-    return Promise.reject(err);
+    return Promise.reject(toError(err));
   }
 };
 
@@ -136,20 +141,22 @@ registerRoute(
     try {
       const res = await fetch(request);
       if (res.ok) {
-        res
+        void res
           .clone()
           .json()
           .then((dirtyReviews: RawReview[]) =>
             dirtyReviews.map(dirtyReview => sanitizeReview(dirtyReview))
           )
           .then(cleanReviews => {
-            cleanReviews.forEach(review => writeItem("reviews", review));
+            cleanReviews.forEach(review => {
+              void writeItem("reviews", review);
+            });
           });
       }
       return res;
     } catch (err) {
       console.log(err);
-      return Promise.reject(err);
+      return Promise.reject(toError(err));
     }
   },
   "GET"
@@ -159,10 +166,11 @@ function send_message_to_client(client: Client, msg: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const msg_chan = new MessageChannel();
     msg_chan.port1.onmessage = (event: MessageEvent) => {
-      if (event.data.error) {
-        reject(event.data.error);
+      const data = event.data as { error?: unknown };
+      if (data.error) {
+        reject(toError(data.error));
       } else {
-        resolve(event.data);
+        resolve(data);
       }
     };
     client.postMessage(msg, [msg_chan.port2]);
@@ -172,8 +180,8 @@ function send_message_to_client(client: Client, msg: string): Promise<unknown> {
 function send_message_to_all_clients(msg: string): Promise<void> {
   return swScope.clients.matchAll().then(clients => {
     clients.forEach(client => {
-      send_message_to_client(client, msg).then(m =>
-        console.log(`[SW]: Received message from client ` + m)
+      void send_message_to_client(client, msg).then(m =>
+        console.log(`[SW]: Received message from client ` + String(m))
       );
     });
   });
@@ -198,19 +206,19 @@ function syncNewReviews(): Promise<unknown> {
           })
           .catch(err => {
             console.log(`[SW] Error syncing review ${reviewBody.name}`, err);
-            return Promise.reject(err);
+            return Promise.reject(toError(err));
           });
       });
       setTimeout(() => {
         if (!notifiedClient) {
-          send_message_to_all_clients("refresh");
+          void send_message_to_all_clients("refresh");
           notifiedClient = true;
         }
       }, SUBMIT_REVIEWS_TIMEOUT);
       return Promise.all(arrOfPromises)
         .then(res => {
           console.log(`[SW] Successfully synced all reviews to server`);
-          send_message_to_all_clients("refresh");
+          void send_message_to_all_clients("refresh");
           notifiedClient = true;
           return Promise.resolve(res);
         })
@@ -220,11 +228,11 @@ function syncNewReviews(): Promise<unknown> {
               ? `[SW] Unable to sync reviews with server. This is probably because you are offline`
               : `[SW] Unable to sync reviews with server due to an unknown error. Please contact the developer with the following error message: ${err}`;
           if (!notifiedClient) {
-            send_message_to_all_clients("refresh");
+            void send_message_to_all_clients("refresh");
             notifiedClient = true;
           }
           console.log(humanFriendlyErrorMessage);
-          return Promise.reject(humanFriendlyErrorMessage);
+          return Promise.reject(new Error(humanFriendlyErrorMessage));
         });
     } else {
       console.log(`[SW] No reviews to sync`);

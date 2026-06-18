@@ -25,16 +25,24 @@ window.state = {
   mapClosed: true
 };
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
+  void initPage();
+});
+
+async function initPage(): Promise<void> {
   await Promise.all([
     updateRestaurants(),
     fetchAndFillNeighborhoods(),
     fetchAndFillCuisines()
   ]);
 
-  document.getElementById("neighborhoods-select")?.addEventListener("change", updateRestaurants);
-  document.getElementById("cuisines-select")?.addEventListener("change", updateRestaurants);
-});
+  document
+    .getElementById("neighborhoods-select")
+    ?.addEventListener("change", () => void updateRestaurants());
+  document
+    .getElementById("cuisines-select")
+    ?.addEventListener("change", () => void updateRestaurants());
+}
 
 async function fetchAndFillNeighborhoods(): Promise<void> {
   try {
@@ -67,7 +75,7 @@ async function fetchAndFillCuisines(): Promise<void> {
 }
 
 function loadMap(): void {
-  initMap(document.getElementById("map") as HTMLElement, {
+  void initMap(document.getElementById("map") as HTMLElement, {
     zoom: 12,
     center: { lat: 40.722216, lng: -73.987501 },
     scrollwheel: false
@@ -79,7 +87,7 @@ export const updateRestaurants = async (): Promise<void> => {
   try {
     const filteredRestaurants = await fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood);
     const restaurantListMountPoint = document.getElementById("restaurants-list") as HTMLElement;
-    render(RestaurantList(filteredRestaurants, updateRestaurants), restaurantListMountPoint);
+    render(RestaurantList(filteredRestaurants, () => void updateRestaurants()), restaurantListMountPoint);
     if (window.state.map) {
       window.state.markers.forEach(m => m.remove());
       window.state.markers = [];

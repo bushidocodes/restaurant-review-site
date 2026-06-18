@@ -20,14 +20,8 @@ export default class CreateReviewModal {
     // args
     this.onSubmit = onSubmit;
     this.restaurantID = restaurantID;
-    // bind methods
-    this.getFormState = this.getFormState.bind(this);
-    this.closeBtnHandler = this.closeBtnHandler.bind(this);
-    this.open = this.open.bind(this);
-    this.close = this.close.bind(this);
-    this.submitForm = this.submitForm.bind(this);
-    this.formSubmissionHandler = this.formSubmissionHandler.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
+    // (handlers passed to addEventListener are arrow-function class fields, so
+    // they're already bound to `this` — no manual .bind() needed.)
     // grab DOM
     this.modal = document.querySelector("#create-review") as HTMLElement;
     this.form = document.querySelector("#create-review-form") as HTMLFormElement;
@@ -82,10 +76,10 @@ export default class CreateReviewModal {
     }, 150);
   }
 
-  closeBtnHandler(evt: Event): void {
+  closeBtnHandler = (evt: Event): void => {
     evt.preventDefault();
     this.close();
-  }
+  };
 
   submitForm(): void {
     const postBody = this.getFormState();
@@ -116,17 +110,17 @@ export default class CreateReviewModal {
 
     this.close();
     console.log(`[App] Submitting post data`, postBody);
-    this.onSubmit(postBody);
+    void this.onSubmit(postBody);
     this.clearFormState();
   }
 
-  formSubmissionHandler(evt: Event): void {
+  formSubmissionHandler = (evt: Event): void => {
     evt.preventDefault();
     this.submitForm();
-  }
+  };
 
   // Based on https://bitsofco.de/accessible-modal-dialog/
-  handleKeyDown(e: KeyboardEvent): void {
+  handleKeyDown = (e: KeyboardEvent): void => {
     const KEY_TAB = 9;
     const KEY_ESC = 27;
     const KEY_ENTER = 13;
@@ -166,5 +160,5 @@ export default class CreateReviewModal {
       default:
         break;
     }
-  }
+  };
 }
