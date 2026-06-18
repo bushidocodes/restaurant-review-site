@@ -21,11 +21,32 @@ import express, { type Router } from "express";
 import type { DatabaseSync, SQLInputValue } from "node:sqlite";
 
 import type {
+  LatLng,
+  OperatingHours,
   Restaurant,
   RestaurantRow,
   Review,
   ReviewRow,
 } from "./types.ts";
+
+/** Request-body shapes accepted by the create/update endpoints (all optional). */
+interface RestaurantInput {
+  name?: string;
+  neighborhood?: string | null;
+  photograph?: string | null;
+  address?: string | null;
+  latlng?: LatLng | null;
+  cuisine_type?: string | null;
+  operating_hours?: OperatingHours | null;
+  is_favorite?: boolean;
+}
+
+interface ReviewInput {
+  restaurant_id?: number;
+  name?: string;
+  rating?: number | null;
+  comments?: string | null;
+}
 
 const now = (): string => new Date().toISOString();
 
@@ -49,9 +70,11 @@ function toRestaurant(row: RestaurantRow): Restaurant {
     neighborhood: row.neighborhood,
     photograph: row.photograph,
     address: row.address,
-    latlng: row.latlng ? JSON.parse(row.latlng) : null,
+    latlng: row.latlng ? (JSON.parse(row.latlng) as LatLng) : null,
     cuisine_type: row.cuisine_type,
-    operating_hours: row.operating_hours ? JSON.parse(row.operating_hours) : null,
+    operating_hours: row.operating_hours
+      ? (JSON.parse(row.operating_hours) as OperatingHours)
+      : null,
     is_favorite: Boolean(row.is_favorite),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -142,7 +165,8 @@ export function createApiRouter(db: DatabaseSync): Router {
   });
 
   router.post("/restaurants", (req, res) => {
-    const { name } = req.body;
+    const body = req.body as RestaurantInput;
+    const { name } = body;
     if (!name) return res.status(400).json({ error: "`name` is required" });
 
     const ts = now();
@@ -154,13 +178,13 @@ export function createApiRouter(db: DatabaseSync): Router {
       )
       .run(
         name,
-        req.body.neighborhood ?? null,
-        req.body.photograph ?? null,
-        req.body.address ?? null,
-        JSON.stringify(req.body.latlng ?? null),
-        req.body.cuisine_type ?? null,
-        JSON.stringify(req.body.operating_hours ?? null),
-        req.body.is_favorite ? 1 : 0,
+        body.neighborhood ?? null,
+        body.photograph ?? null,
+        body.address ?? null,
+        JSON.stringify(body.latlng ?? null),
+        body.cuisine_type ?? null,
+        JSON.stringify(body.operating_hours ?? null),
+        body.is_favorite ? 1 : 0,
         ts,
         ts
       );
@@ -178,7 +202,7 @@ export function createApiRouter(db: DatabaseSync): Router {
       "restaurants",
       RESTAURANT_COLUMNS,
       Number(req.params.id),
-      req.body,
+      req.body as Record<string, unknown>,
       toRestaurant
     );
     if (!updated) return res.status(404).json({ error: "Restaurant not found" });
@@ -219,7 +243,8 @@ export function createApiRouter(db: DatabaseSync): Router {
   });
 
   router.post("/reviews", (req, res) => {
-    const { restaurant_id, name } = req.body;
+    const body = req.body as ReviewInput;
+    const { restaurant_id, name } = body;
     if (restaurant_id == null || !name) {
       return res
         .status(400)
@@ -236,8 +261,8 @@ export function createApiRouter(db: DatabaseSync): Router {
       .run(
         Number(restaurant_id),
         name,
-        req.body.rating ?? null,
-        req.body.comments ?? null,
+        body.rating ?? null,
+        body.comments ?? null,
         ts,
         ts
       );
@@ -255,7 +280,7 @@ export function createApiRouter(db: DatabaseSync): Router {
       "reviews",
       REVIEW_COLUMNS,
       Number(req.params.id),
-      req.body,
+      req.body as Record<string, unknown>,
       toReview
     );
     if (!updated) return res.status(404).json({ error: "Review not found" });

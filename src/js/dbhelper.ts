@@ -13,7 +13,9 @@ export async function fetchRestaurants(): Promise<Restaurant[]> {
     const res = await fetch(`${SERVER}/restaurants`);
     if (res.ok) {
       const data = (await res.json()) as Restaurant[];
-      data.forEach(r => writeItem("restaurants", r).catch(() => {}));
+      data.forEach(r => {
+        writeItem("restaurants", r).catch(() => {});
+      });
       return data;
     }
   } catch {
@@ -138,7 +140,9 @@ export async function fetchReviewsForRestaurant(
     const res = await fetch(`${SERVER}/reviews/?restaurant_id=${id}`);
     if (res.ok) {
       const data = (await res.json()) as Review[];
-      data.forEach(r => writeItem("reviews", r).catch(() => {}));
+      data.forEach(r => {
+        writeItem("reviews", r).catch(() => {});
+      });
       return [...data.map(r => ({ ...r, isDraft: false })), ...draftReviews];
     }
   } catch {

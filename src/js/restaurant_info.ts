@@ -31,14 +31,18 @@ function getParam(name: string): string | null {
   return new URLSearchParams(window.location.search).get(name);
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
+  void onReady();
+});
+
+async function onReady(): Promise<void> {
   try {
     const restaurant = await fetchRestaurantFromURL();
     fillBreadcrumb(restaurant);
   } catch (e) {
     console.error(e);
   }
-  fetchReviewsFromURL();
+  void fetchReviewsFromURL();
 
   const CRM = new CreateReviewModal({
     restaurantID: getParam("id"),
@@ -54,7 +58,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         window.state.reviews = reviews;
       } else {
         // Offline (background sync): draft is now in IDB — re-fetch to show it immediately
-        fetchReviewsFromURL();
+        void fetchReviewsFromURL();
       }
     }
   });
@@ -65,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     navigator.serviceWorker.addEventListener("message", event => {
       event.ports[0]?.postMessage("ACK");
       if (event.data === "refresh") {
-        fetchReviewsFromURL();
+        void fetchReviewsFromURL();
       }
     });
 
@@ -89,12 +93,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       toggleMapBtn.setAttribute("aria-pressed", "false");
     }
   });
-});
+}
 
 function loadMap(): void {
   const restaurant = window.state.restaurant;
   if (!restaurant?.latlng) return;
-  initMap(document.getElementById("map") as HTMLElement, {
+  void initMap(document.getElementById("map") as HTMLElement, {
     zoom: 16,
     center: restaurant.latlng,
     scrollwheel: false
