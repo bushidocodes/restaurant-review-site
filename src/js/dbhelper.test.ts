@@ -67,19 +67,19 @@ describe("fetchRestaurants", () => {
   });
 
   it("falls back to IDB when fetch throws (offline)", async () => {
-    await writeItem("restaurants", RESTAURANTS[0]);
-    await writeItem("restaurants", RESTAURANTS[1]);
+    await writeItem("restaurants", RESTAURANTS[0]!);
+    await writeItem("restaurants", RESTAURANTS[1]!);
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
     const result = await fetchRestaurants();
     expect(result).toHaveLength(2);
   });
 
   it("falls back to IDB when response is not ok", async () => {
-    await writeItem("restaurants", RESTAURANTS[2]);
+    await writeItem("restaurants", RESTAURANTS[2]!);
     vi.stubGlobal("fetch", makeFetch(null, { ok: false, status: 503 }));
     const result = await fetchRestaurants();
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe(3);
+    expect(result[0]?.id).toBe(3);
   });
 
   it("writes successful network results into IDB", async () => {
@@ -110,14 +110,14 @@ describe("fetchRestaurantById", () => {
   });
 
   it("falls back to IDB on network error", async () => {
-    await writeItem("restaurants", RESTAURANTS[2]);
+    await writeItem("restaurants", RESTAURANTS[2]!);
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
     const result = await fetchRestaurantById(3);
     expect(result?.id).toBe(3);
   });
 
   it("falls back to IDB when response is not ok", async () => {
-    await writeItem("restaurants", RESTAURANTS[1]);
+    await writeItem("restaurants", RESTAURANTS[1]!);
     vi.stubGlobal("fetch", makeFetch(null, { ok: false, status: 404 }));
     const result = await fetchRestaurantById(2);
     expect(result?.id).toBe(2);
@@ -140,19 +140,19 @@ describe("fetchRestaurantByCuisineAndNeighborhood", () => {
   it("filters to a single cuisine type", async () => {
     const result = await fetchRestaurantByCuisineAndNeighborhood("Chinese", "all");
     expect(result).toHaveLength(1);
-    expect(result[0].cuisine_type).toBe("Chinese");
+    expect(result[0]?.cuisine_type).toBe("Chinese");
   });
 
   it("filters to a single neighborhood", async () => {
     const result = await fetchRestaurantByCuisineAndNeighborhood("all", "Queens");
     expect(result).toHaveLength(1);
-    expect(result[0].neighborhood).toBe("Queens");
+    expect(result[0]?.neighborhood).toBe("Queens");
   });
 
   it("filters by both cuisine and neighborhood", async () => {
     const result = await fetchRestaurantByCuisineAndNeighborhood("Pizza", "Manhattan");
     expect(result).toHaveLength(1);
-    expect(result[0].name).toBe("Emily");
+    expect(result[0]?.name).toBe("Emily");
   });
 
   it("returns empty array when no restaurant matches", async () => {
@@ -169,7 +169,7 @@ describe("fetchRestaurantByCuisine", () => {
     vi.stubGlobal("fetch", makeFetch(RESTAURANTS));
     const result = await fetchRestaurantByCuisine("Korean");
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe(3);
+    expect(result[0]?.id).toBe(3);
   });
 });
 
@@ -391,7 +391,15 @@ describe("postReview", () => {
 
 describe("fetchReviewsForRestaurant", () => {
   const serverReviews = [
-    { id: 100, restaurant_id: 1, name: "Server User", rating: 5, comments: "Posted" },
+    {
+      id: 100,
+      restaurant_id: 1,
+      name: "Server User",
+      rating: 5,
+      comments: "Posted",
+      createdAt: "2024-01-01T00:00:00.000Z",
+      updatedAt: "2024-01-01T00:00:00.000Z",
+    },
   ];
   const draft = { localId: 1, restaurant_id: 1, name: "Draft User", rating: 3, comments: "Pending" };
 
@@ -416,7 +424,7 @@ describe("fetchReviewsForRestaurant", () => {
   });
 
   it("falls back to cached IDB reviews when offline", async () => {
-    await writeItem("reviews", { ...serverReviews[0], isDraft: false });
+    await writeItem("reviews", serverReviews[0]!);
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
     const result = await fetchReviewsForRestaurant(1);
     expect(result.some(r => r.id === 100)).toBe(true);
@@ -429,7 +437,7 @@ describe("fetchReviewsForRestaurant", () => {
   });
 
   it("falls back to cached IDB reviews when response is not ok", async () => {
-    await writeItem("reviews", { ...serverReviews[0], isDraft: false });
+    await writeItem("reviews", serverReviews[0]!);
     vi.stubGlobal("fetch", makeFetch(null, { ok: false, status: 503 }));
     const result = await fetchReviewsForRestaurant(1);
     expect(result.some(r => r.id === 100)).toBe(true);

@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.addEventListener("message", event => {
-      event.ports[0].postMessage("ACK");
+      event.ports[0]?.postMessage("ACK");
       if (event.data === "refresh") {
         fetchReviewsFromURL();
       }
@@ -146,7 +146,7 @@ function fillRestaurantHoursHTML(operatingHours: OperatingHours): void {
     day.textContent = key;
     row.appendChild(day);
     const time = document.createElement("td");
-    time.textContent = operatingHours[key];
+    time.textContent = operatingHours[key] ?? "";
     row.appendChild(time);
     hours.appendChild(row);
   }
