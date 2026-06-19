@@ -2,10 +2,21 @@ import express, { type Request, type Response } from "express";
 import morgan from "morgan";
 import path from "path";
 import compression from "compression";
+import rateLimit from "express-rate-limit";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+
+// Rate limit all requests to mitigate DoS against file-system operations
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
+);
 
 // Setup Gzip compression of response bodies
 app.use(compression());
