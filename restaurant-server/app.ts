@@ -11,9 +11,9 @@
  *   DATABASE_PATH   Path to a SQLite file. When set, data   Default: (unset) →
  *                   persists across restarts. When unset,    in-memory, ephemeral
  *                   the API runs on an in-memory database.
- *   CORS_ORIGIN     Comma-separated list of allowed         Default: reflect any
- *                   front-end origins. Set this in           origin (dev-friendly)
- *                   production to lock the API down.
+ *   CORS_ORIGIN     Comma-separated list of allowed         Default: open wildcard
+ *                   front-end origins. Must be set in        (no credentials)
+ *                   production to enable credentialed CORS.
  *   SESSION_SECRET  Secret used to sign the session cookie.  Default: insecure
  *                   Set a real value in production.          dev fallback
  *   NODE_ENV        Set to "production" to enable the        Default: unset
@@ -55,14 +55,21 @@ const app = express();
 app.use(morgan("dev"));
 app.use(express.json());
 
-// CORS: when CORS_ORIGIN is set, allow only those origins; otherwise reflect
-// the request origin so the app works on whatever local port you serve from.
+// CORS: when CORS_ORIGIN is set, allow only those origins and permit
+// credentialed requests. Without it (dev), respond with an open wildcard —
+// browsers block credentials for wildcard origins, so this is safe.
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const allowed = CORS_ORIGIN ? CORS_ORIGIN.split(",").map((o) => o.trim()) : null;
   const origin = req.headers.origin;
-  if (!allowed || (origin && allowed.includes(origin))) {
-    res.setHeader("Access-Control-Allow-Origin", origin || "*");
-    res.setHeader("Access-Control-Allow-Credentials", "true");
+  if (CORS_ORIGIN) {
+    const allowed = CORS_ORIGIN.split(",").map((o) => o.trim());
+    if (origin && allowed.includes(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+      res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+    }
+  } else {
+    res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
   }
