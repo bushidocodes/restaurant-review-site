@@ -16,6 +16,8 @@
  *                   production to lock the API down.
  *   SESSION_SECRET  Secret used to sign the session cookie.  Default: insecure
  *                   Set a real value in production.          dev fallback
+ *   NODE_ENV        Set to "production" to enable the        Default: unset
+ *                   Secure flag on the session cookie.
  */
 
 import express, {
@@ -83,6 +85,11 @@ app.use(
     secret: SESSION_SECRET || "insecure-dev-secret",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+    },
   })
 );
 
