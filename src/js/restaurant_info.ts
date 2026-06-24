@@ -144,14 +144,14 @@ function fillRestaurantHTML(restaurant: Restaurant): void {
 function fillRestaurantHoursHTML(operatingHours: OperatingHours): void {
   const hours = document.getElementById("restaurant-hours") as HTMLElement;
   hours.innerHTML = "";
-  for (const key in operatingHours) {
+  for (const [day, time] of Object.entries(operatingHours)) {
     const row = document.createElement("tr");
-    const day = document.createElement("td");
-    day.textContent = key;
-    row.appendChild(day);
-    const time = document.createElement("td");
-    time.textContent = operatingHours[key] ?? "";
-    row.appendChild(time);
+    const dayCell = document.createElement("td");
+    dayCell.textContent = day;
+    row.appendChild(dayCell);
+    const timeCell = document.createElement("td");
+    timeCell.textContent = time;
+    row.appendChild(timeCell);
     hours.appendChild(row);
   }
 }

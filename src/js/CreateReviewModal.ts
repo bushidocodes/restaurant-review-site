@@ -121,10 +121,6 @@ export default class CreateReviewModal {
 
   // Based on https://bitsofco.de/accessible-modal-dialog/
   handleKeyDown = (e: KeyboardEvent): void => {
-    const KEY_TAB = 9;
-    const KEY_ESC = 27;
-    const KEY_ENTER = 13;
-
     const handleBackwardTab = () => {
       if (document.activeElement === this.firstFocusableEl) {
         e.preventDefault();
@@ -138,8 +134,8 @@ export default class CreateReviewModal {
       }
     };
 
-    switch (e.keyCode) {
-      case KEY_TAB:
+    switch (e.key) {
+      case "Tab":
         if (this.internalFocusableEls.length === 1) {
           e.preventDefault();
           break;
@@ -150,10 +146,10 @@ export default class CreateReviewModal {
           handleForwardTab();
         }
         break;
-      case KEY_ESC:
+      case "Escape":
         this.close();
         break;
-      case KEY_ENTER:
+      case "Enter":
         e.preventDefault();
         this.submitForm();
         break;
