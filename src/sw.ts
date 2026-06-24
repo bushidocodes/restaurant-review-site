@@ -90,13 +90,13 @@ registerRoute(
       const res = await fetch(request);
       if (res.ok) {
         const cloneRes = res.clone();
-        void deleteItems("restaurants").then(() =>
-          cloneRes.json().then((resAsJSON: Restaurant[]) => {
-            resAsJSON.forEach(item => {
-              void writeItem("restaurants", item);
-            });
-          })
-        );
+        void (async () => {
+          await deleteItems("restaurants");
+          const resAsJSON = await cloneRes.json() as Restaurant[];
+          for (const item of resAsJSON) {
+            void writeItem("restaurants", item);
+          }
+        })();
       }
       return res;
     } catch (err) {
@@ -141,17 +141,12 @@ registerRoute(
     try {
       const res = await fetch(request);
       if (res.ok) {
-        void res
-          .clone()
-          .json()
-          .then((dirtyReviews: RawReview[]) =>
-            dirtyReviews.map(dirtyReview => sanitizeReview(dirtyReview))
-          )
-          .then(cleanReviews => {
-            cleanReviews.forEach(review => {
-              void writeItem("reviews", review);
-            });
-          });
+        void (async () => {
+          const dirtyReviews = await res.clone().json() as RawReview[];
+          for (const review of dirtyReviews.map(sanitizeReview)) {
+            void writeItem("reviews", review);
+          }
+        })();
       }
       return res;
     } catch (err) {
@@ -162,82 +157,81 @@ registerRoute(
   "GET"
 );
 
-function send_message_to_client(client: Client, msg: string): Promise<unknown> {
-  return new Promise((resolve, reject) => {
-    const msg_chan = new MessageChannel();
-    msg_chan.port1.onmessage = (event: MessageEvent) => {
-      const data = event.data as { error?: unknown };
-      if (data.error) {
-        reject(toError(data.error));
-      } else {
-        resolve(data);
-      }
-    };
-    client.postMessage(msg, [msg_chan.port2]);
-  });
+function sendMessageToClient(client: Client, msg: string): Promise<unknown> {
+  const { promise, resolve, reject } = Promise.withResolvers<unknown>();
+  const msgChan = new MessageChannel();
+  msgChan.port1.onmessage = (event: MessageEvent) => {
+    const data = event.data as { error?: unknown };
+    if (data.error) {
+      reject(toError(data.error));
+    } else {
+      resolve(data);
+    }
+  };
+  client.postMessage(msg, [msgChan.port2]);
+  return promise;
 }
 
-function send_message_to_all_clients(msg: string): Promise<void> {
-  return swScope.clients.matchAll().then(clients => {
-    clients.forEach(client => {
-      void send_message_to_client(client, msg).then(m =>
-        console.log(`[SW]: Received message from client ` + String(m))
-      );
-    });
-  });
+async function sendMessageToAllClients(msg: string): Promise<void> {
+  const clients = await swScope.clients.matchAll();
+  for (const client of clients) {
+    void sendMessageToClient(client, msg).then(m =>
+      console.log("[SW]: Received message from client " + String(m))
+    );
+  }
 }
 
 const SUBMIT_REVIEWS_TIMEOUT = 1000;
 let notifiedClient = false;
 
-function syncNewReviews(): Promise<unknown> {
+async function syncNewReviews(): Promise<void> {
   notifiedClient = false;
-  return getItems("sync-reviews").then(allDrafts => {
-    // Only drafts that have been persisted have a localId (the IDB key).
-    const reviews = allDrafts.filter(
-      (r): r is ReviewDraft & { localId: number } => r.localId !== undefined
-    );
-    if (reviews.length > 0) {
-      const arrOfPromises = reviews.map(({ localId, ...reviewBody }) => {
-        return postReviewDirectly(reviewBody)
-          .then(resBody => {
-            console.log(`[SW] Synced review with server`, resBody);
-            return deleteItem("sync-reviews", localId);
-          })
-          .catch(err => {
-            console.log(`[SW] Error syncing review ${reviewBody.name}`, err);
-            return Promise.reject(toError(err));
-          });
-      });
-      setTimeout(() => {
-        if (!notifiedClient) {
-          void send_message_to_all_clients("refresh");
-          notifiedClient = true;
-        }
-      }, SUBMIT_REVIEWS_TIMEOUT);
-      return Promise.all(arrOfPromises)
-        .then(res => {
-          console.log(`[SW] Successfully synced all reviews to server`);
-          void send_message_to_all_clients("refresh");
-          notifiedClient = true;
-          return Promise.resolve(res);
-        })
-        .catch(err => {
-          const humanFriendlyErrorMessage =
-            err instanceof TypeError && err.message === "Failed to fetch"
-              ? `[SW] Unable to sync reviews with server. This is probably because you are offline`
-              : `[SW] Unable to sync reviews with server due to an unknown error. Please contact the developer with the following error message: ${err}`;
-          if (!notifiedClient) {
-            void send_message_to_all_clients("refresh");
-            notifiedClient = true;
-          }
-          console.log(humanFriendlyErrorMessage);
-          return Promise.reject(new Error(humanFriendlyErrorMessage));
-        });
-    } else {
-      console.log(`[SW] No reviews to sync`);
+  const allDrafts = await getItems("sync-reviews");
+  // Only drafts that have been persisted have a localId (the IDB key).
+  const reviews = allDrafts.filter(
+    (r): r is ReviewDraft & { localId: number } => r.localId !== undefined
+  );
+
+  if (reviews.length === 0) {
+    console.log("[SW] No reviews to sync");
+    return;
+  }
+
+  setTimeout(() => {
+    if (!notifiedClient) {
+      void sendMessageToAllClients("refresh");
+      notifiedClient = true;
     }
-  });
+  }, SUBMIT_REVIEWS_TIMEOUT);
+
+  try {
+    await Promise.all(
+      reviews.map(async ({ localId, ...reviewBody }) => {
+        try {
+          const resBody = await postReviewDirectly(reviewBody);
+          console.log("[SW] Synced review with server", resBody);
+          await deleteItem("sync-reviews", localId);
+        } catch (err) {
+          console.log(`[SW] Error syncing review ${reviewBody.name}`, err);
+          throw toError(err);
+        }
+      })
+    );
+    console.log("[SW] Successfully synced all reviews to server");
+    void sendMessageToAllClients("refresh");
+    notifiedClient = true;
+  } catch (err) {
+    const humanFriendlyErrorMessage =
+      err instanceof TypeError && err.message === "Failed to fetch"
+        ? "[SW] Unable to sync reviews with server. This is probably because you are offline"
+        : `[SW] Unable to sync reviews with server due to an unknown error. Please contact the developer with the following error message: ${String(err)}`;
+    if (!notifiedClient) {
+      void sendMessageToAllClients("refresh");
+      notifiedClient = true;
+    }
+    console.log(humanFriendlyErrorMessage);
+    throw new Error(humanFriendlyErrorMessage, { cause: err });
+  }
 }
 
 swScope.addEventListener("sync", (event: Event) => {
