@@ -42,7 +42,7 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "fake-indexeddb": "^6.2.5",
-    "globals": "^17.6.0",
+    "globals": "^17.7.0",
     "jsdom": "^29.1.1",
     "morgan": "^1.11.0",
     "npm-run-all2": "^9.0.2",
