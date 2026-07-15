@@ -1,4 +1,4 @@
-import { openDB, type DBSchema } from "idb";
+import { type DBSchema, openDB } from "idb";
 import type { Restaurant, Review, ReviewDraft } from "./types";
 
 // Maps each object store to the value type it holds, so reads and writes are
@@ -27,7 +27,10 @@ const dbPromise = openDB<ReviewsDB>("restaurants-store", 7, {
       if (db.objectStoreNames.contains("sync-reviews")) {
         db.deleteObjectStore("sync-reviews");
       }
-      db.createObjectStore("sync-reviews", { keyPath: "localId", autoIncrement: true });
+      db.createObjectStore("sync-reviews", {
+        keyPath: "localId",
+        autoIncrement: true
+      });
     }
   }
 });
@@ -61,7 +64,10 @@ export async function deleteItems(storeName: StoreName): Promise<void> {
   await db.clear(storeName);
 }
 
-export async function deleteItem(storeName: StoreName, id: number): Promise<void> {
+export async function deleteItem(
+  storeName: StoreName,
+  id: number
+): Promise<void> {
   const db = await dbPromise;
   await db.delete(storeName, id);
 }

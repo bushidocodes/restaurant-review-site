@@ -1,8 +1,8 @@
-import { defineConfig } from "vite";
-import { VitePWA } from "vite-plugin-pwa";
-import { imagetools } from "vite-imagetools";
 import path from "path";
 import { fileURLToPath } from "url";
+import { defineConfig } from "vite";
+import { imagetools } from "vite-imagetools";
+import { VitePWA } from "vite-plugin-pwa";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

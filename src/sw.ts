@@ -1,18 +1,23 @@
 /// <reference lib="webworker" />
+
+import { ExpirationPlugin } from "workbox-expiration";
+import {
+  matchPrecache,
+  type PrecacheEntry,
+  precacheAndRoute
+} from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
 import { StaleWhileRevalidate } from "workbox-strategies";
-import { precacheAndRoute, matchPrecache, type PrecacheEntry } from "workbox-precaching";
-import { ExpirationPlugin } from "workbox-expiration";
+import { postReviewDirectly } from "./js/dbhelper";
+import type { Restaurant, ReviewDraft } from "./js/types";
 import {
   deleteItem,
   deleteItems,
-  writeItem,
   getItems,
+  type RawReview,
   sanitizeReview,
-  type RawReview
+  writeItem
 } from "./js/utils";
-import { postReviewDirectly } from "./js/dbhelper";
-import type { Restaurant, ReviewDraft } from "./js/types";
 
 // vite-plugin-pwa injects the precache manifest by string-replacing the literal
 // `self.__WB_MANIFEST`, so that token must appear verbatim below. The SW config
@@ -39,7 +44,8 @@ interface SyncEvent extends ExtendableEvent {
 }
 
 /** Normalize an unknown thrown value into an `Error` for promise rejection. */
-const toError = (e: unknown): Error => (e instanceof Error ? e : new Error(String(e)));
+const toError = (e: unknown): Error =>
+  e instanceof Error ? e : new Error(String(e));
 
 const SERVER = import.meta.env.API_SERVER || "http://localhost:1337";
 const SERVER_ORIGIN = new URL(SERVER).origin;
@@ -61,17 +67,15 @@ registerRoute(
 );
 
 // Redirect restaurant detail routes to pre-cached restaurant.html
-registerRoute(
-  /restaurant\.html\?id=[0-9]+/,
-  async () => {
-    const cached = await matchPrecache("/restaurant.html");
-    return cached ?? fetch("/restaurant.html");
-  }
-);
+registerRoute(/restaurant\.html\?id=[0-9]+/, async () => {
+  const cached = await matchPrecache("/restaurant.html");
+  return cached ?? fetch("/restaurant.html");
+});
 
 // Cache restaurant images
 registerRoute(
-  ({ url }) => url.origin === self.location.origin && url.pathname.includes(".jpg"),
+  ({ url }) =>
+    url.origin === self.location.origin && url.pathname.includes(".jpg"),
   new StaleWhileRevalidate({
     cacheName: "restaurant-images",
     plugins: [
@@ -92,7 +96,7 @@ registerRoute(
         const cloneRes = res.clone();
         void (async () => {
           await deleteItems("restaurants");
-          const resAsJSON = await cloneRes.json() as Restaurant[];
+          const resAsJSON = (await cloneRes.json()) as Restaurant[];
           for (const item of resAsJSON) {
             void writeItem("restaurants", item);
           }
@@ -110,7 +114,11 @@ registerRoute(
 const restaurantByIDMatcher = ({ url }: { url: URL }): boolean =>
   url.origin === SERVER_ORIGIN && /^\/restaurants\/[0-9]+$/.test(url.pathname);
 
-const restaurantByIDHandler = async ({ request }: { request: Request }): Promise<Response> => {
+const restaurantByIDHandler = async ({
+  request
+}: {
+  request: Request;
+}): Promise<Response> => {
   try {
     const res = await fetch(request);
     if (res.ok) {
@@ -118,7 +126,7 @@ const restaurantByIDHandler = async ({ request }: { request: Request }): Promise
         .clone()
         .json()
         .then((restaurant: Restaurant) => writeItem("restaurants", restaurant))
-        .catch(err => console.log(err));
+        .catch((err) => console.log(err));
     }
     return res;
   } catch (err) {
@@ -142,7 +150,7 @@ registerRoute(
       const res = await fetch(request);
       if (res.ok) {
         void (async () => {
-          const dirtyReviews = await res.clone().json() as RawReview[];
+          const dirtyReviews = (await res.clone().json()) as RawReview[];
           for (const review of dirtyReviews.map(sanitizeReview)) {
             void writeItem("reviews", review);
           }
@@ -175,7 +183,7 @@ function sendMessageToClient(client: Client, msg: string): Promise<unknown> {
 async function sendMessageToAllClients(msg: string): Promise<void> {
   const clients = await swScope.clients.matchAll();
   for (const client of clients) {
-    void sendMessageToClient(client, msg).then(m =>
+    void sendMessageToClient(client, msg).then((m) =>
       console.log("[SW]: Received message from client " + String(m))
     );
   }
@@ -239,7 +247,7 @@ swScope.addEventListener("sync", (event: Event) => {
   console.log(`[SW] Receiving sync event ${syncEvent.tag}`);
   switch (syncEvent.tag) {
     case "sync-new-reviews":
-      return syncEvent.waitUntil(syncNewReviews().catch(e => console.log(e)));
+      return syncEvent.waitUntil(syncNewReviews().catch((e) => console.log(e)));
     default:
       console.log(`[SW] Error: ${syncEvent.tag} is an unknown sync tag`);
   }

@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
-  writeItem,
-  getItems,
-  getItem,
-  deleteItems,
   deleteItem,
+  deleteItems,
+  getItem,
+  getItems,
   sanitizeReview,
+  writeItem
 } from "./utils";
 
 const STORE = "restaurants";
@@ -28,11 +28,16 @@ describe("sanitizeReview", () => {
     restaurant_id: 2,
     comments: "Great!",
     createdAt: "2024-01-01T00:00:00.000Z",
-    updatedAt: "2024-01-02T00:00:00.000Z",
+    updatedAt: "2024-01-02T00:00:00.000Z"
   };
 
   it("coerces string id, rating, and restaurant_id to numbers", () => {
-    const result = sanitizeReview({ ...base, id: "42", rating: "4", restaurant_id: "7" });
+    const result = sanitizeReview({
+      ...base,
+      id: "42",
+      rating: "4",
+      restaurant_id: "7"
+    });
     expect(result.id).toBe(42);
     expect(result.rating).toBe(4);
     expect(result.restaurant_id).toBe(7);
@@ -70,7 +75,11 @@ describe("sanitizeReview", () => {
 
 describe("writeItem / getItem", () => {
   it("stores and retrieves an item by numeric id", async () => {
-    const restaurant = { id: 1, name: "Tacos El Gordo", neighborhood: "Manhattan" };
+    const restaurant = {
+      id: 1,
+      name: "Tacos El Gordo",
+      neighborhood: "Manhattan"
+    };
     await writeItem(STORE, restaurant);
     const result = await getItem(STORE, 1);
     expect(result).toEqual(restaurant);
@@ -110,7 +119,7 @@ describe("getItems", () => {
     await writeItem(STORE, { id: 2, name: "B" });
     const result = await getItems(STORE);
     expect(result).toHaveLength(2);
-    expect(result.map(r => r.id)).toEqual(expect.arrayContaining([1, 2]));
+    expect(result.map((r) => r.id)).toEqual(expect.arrayContaining([1, 2]));
   });
 });
 

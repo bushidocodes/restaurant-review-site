@@ -1,3 +1,5 @@
+import { html, render, type TemplateResult } from "lit-html";
+import CreateReviewModal from "./CreateReviewModal";
 import {
   fetchRestaurantById,
   fetchReviewsForRestaurant,
@@ -5,10 +7,7 @@ import {
 } from "./dbhelper";
 import { getImage } from "./imageLoader";
 import { initMap, mapMarkerForRestaurant } from "./mapsLoader";
-import CreateReviewModal from "./CreateReviewModal";
 import type { DisplayReview, OperatingHours, Restaurant } from "./types";
-
-import { html, render, type TemplateResult } from "lit-html";
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   // SW ships only in the production build; `type: "module"` matches the `es`
@@ -16,7 +15,9 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
   navigator.serviceWorker
     .register("/sw.js", { type: "module" })
     .then(() => console.log("[App] Service Worker Registered"))
-    .catch(err => console.warn("[App] Service Worker registration failed:", err));
+    .catch((err) =>
+      console.warn("[App] Service Worker registration failed:", err)
+    );
 }
 
 window.state = {
@@ -46,7 +47,7 @@ async function onReady(): Promise<void> {
 
   const CRM = new CreateReviewModal({
     restaurantID: getParam("id"),
-    onSubmit: async postBody => {
+    onSubmit: async (postBody) => {
       const savedReview = await postReview(postBody);
       if (savedReview) {
         // Online: server confirmed the review — append it immediately without a round-trip
@@ -63,10 +64,13 @@ async function onReady(): Promise<void> {
     }
   });
 
-  (document.querySelector("#add-review-btn") as HTMLElement).addEventListener("click", () => CRM.open());
+  (document.querySelector("#add-review-btn") as HTMLElement).addEventListener(
+    "click",
+    () => CRM.open()
+  );
 
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.addEventListener("message", event => {
+    navigator.serviceWorker.addEventListener("message", (event) => {
       event.ports[0]?.postMessage("ACK");
       if (event.data === "refresh") {
         void fetchReviewsFromURL();
@@ -74,7 +78,7 @@ async function onReady(): Promise<void> {
     });
 
     navigator.serviceWorker.ready
-      .then(sw => sw.sync.register("sync-new-reviews"))
+      .then((sw) => sw.sync.register("sync-new-reviews"))
       .catch(() => {});
   }
 
@@ -159,7 +163,7 @@ function fillRestaurantHoursHTML(operatingHours: OperatingHours): void {
 const NoReviews = (): TemplateResult => html`<p>No Reviews yet!</p>`;
 
 const ReviewList = (reviews: DisplayReview[]): TemplateResult => html`
-  ${reviews.map(review => (review.isDraft ? DraftReview(review) : Review(review)))}
+  ${reviews.map((review) => (review.isDraft ? DraftReview(review) : Review(review)))}
 `;
 
 const Review = (review: DisplayReview): TemplateResult => html`
@@ -193,9 +197,14 @@ async function fetchReviewsFromURL(): Promise<void> {
   }
 }
 
-function fillReviewsHTML(reviews: DisplayReview[] | undefined = window.state.reviews): void {
+function fillReviewsHTML(
+  reviews: DisplayReview[] | undefined = window.state.reviews
+): void {
   const reviewsList = document.getElementById("reviews-list") as HTMLElement;
-  render(reviews && reviews.length ? ReviewList(reviews) : NoReviews(), reviewsList);
+  render(
+    reviews && reviews.length ? ReviewList(reviews) : NoReviews(),
+    reviewsList
+  );
 }
 
 function fillBreadcrumb(restaurant: Restaurant): void {

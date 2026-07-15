@@ -24,18 +24,21 @@ export default class CreateReviewModal {
     // they're already bound to `this` — no manual .bind() needed.)
     // grab DOM
     this.modal = document.querySelector("#create-review") as HTMLElement;
-    this.form = document.querySelector("#create-review-form") as HTMLFormElement;
-    this.closeBtn = document.querySelector("#close-create-review-modal-btn") as HTMLElement;
+    this.form = document.querySelector(
+      "#create-review-form"
+    ) as HTMLFormElement;
+    this.closeBtn = document.querySelector(
+      "#close-create-review-modal-btn"
+    ) as HTMLElement;
     this.internalFocusableEls = this.modal.querySelectorAll<HTMLElement>(
       'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex="0"]'
     );
     this.firstFocusableEl = this.internalFocusableEls[0];
-    this.lastFocusableEl = this.internalFocusableEls[
-      this.internalFocusableEls.length - 1
-    ];
+    this.lastFocusableEl =
+      this.internalFocusableEls[this.internalFocusableEls.length - 1];
 
     // wire up event listeners
-    this.internalFocusableEls.forEach(el =>
+    this.internalFocusableEls.forEach((el) =>
       el.addEventListener("keydown", this.handleKeyDown)
     );
     this.closeBtn.addEventListener("click", this.closeBtnHandler);
@@ -43,8 +46,11 @@ export default class CreateReviewModal {
   }
   getFormState() {
     const name = (document.querySelector("#name") as HTMLInputElement).value;
-    const rating = (document.querySelector("#rating") as HTMLInputElement).value;
-    const comments = (document.querySelector("#comments") as HTMLTextAreaElement).value;
+    const rating = (document.querySelector("#rating") as HTMLInputElement)
+      .value;
+    const comments = (
+      document.querySelector("#comments") as HTMLTextAreaElement
+    ).value;
     return {
       name,
       restaurant_id: Number(this.restaurantID),
@@ -85,7 +91,9 @@ export default class CreateReviewModal {
     const postBody = this.getFormState();
     const nameEl = document.querySelector("#name") as HTMLInputElement;
     const ratingEl = document.querySelector("#rating") as HTMLInputElement;
-    const commentsEl = document.querySelector("#comments") as HTMLTextAreaElement;
+    const commentsEl = document.querySelector(
+      "#comments"
+    ) as HTMLTextAreaElement;
 
     if (!postBody.name.trim()) {
       nameEl.setCustomValidity("Please enter your name.");

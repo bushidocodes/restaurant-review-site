@@ -1,12 +1,11 @@
+import { render } from "lit-html";
 import {
-  fetchNeighborhoods,
   fetchCuisines,
+  fetchNeighborhoods,
   fetchRestaurantByCuisineAndNeighborhood
 } from "./dbhelper";
-
 import { initMap, setMarkers } from "./mapsLoader";
 import RestaurantList from "./RestaurantList";
-import { render } from "lit-html";
 import { getSelectedCuisineAndNeighborhood } from "./Toolbar";
 
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
@@ -15,7 +14,7 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
   navigator.serviceWorker
     .register("/sw.js", { type: "module" })
     .then(() => console.log("Service Worker Registered"))
-    .catch(err => console.warn("Service Worker registration failed:", err));
+    .catch((err) => console.warn("Service Worker registration failed:", err));
 }
 
 window.state = {
@@ -47,8 +46,10 @@ async function initPage(): Promise<void> {
 async function fetchAndFillNeighborhoods(): Promise<void> {
   try {
     const neighborhoods = await fetchNeighborhoods();
-    const select = document.getElementById("neighborhoods-select") as HTMLSelectElement;
-    neighborhoods.forEach(neighborhood => {
+    const select = document.getElementById(
+      "neighborhoods-select"
+    ) as HTMLSelectElement;
+    neighborhoods.forEach((neighborhood) => {
       const option = document.createElement("option");
       option.textContent = neighborhood;
       option.value = neighborhood;
@@ -62,8 +63,10 @@ async function fetchAndFillNeighborhoods(): Promise<void> {
 async function fetchAndFillCuisines(): Promise<void> {
   try {
     const cuisines = await fetchCuisines();
-    const select = document.getElementById("cuisines-select") as HTMLSelectElement;
-    cuisines.forEach(cuisine => {
+    const select = document.getElementById(
+      "cuisines-select"
+    ) as HTMLSelectElement;
+    cuisines.forEach((cuisine) => {
       const option = document.createElement("option");
       option.textContent = cuisine;
       option.value = cuisine;
@@ -85,11 +88,19 @@ function loadMap(): void {
 export const updateRestaurants = async (): Promise<void> => {
   const { cuisine, neighborhood } = getSelectedCuisineAndNeighborhood();
   try {
-    const filteredRestaurants = await fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood);
-    const restaurantListMountPoint = document.getElementById("restaurants-list") as HTMLElement;
-    render(RestaurantList(filteredRestaurants, () => void updateRestaurants()), restaurantListMountPoint);
+    const filteredRestaurants = await fetchRestaurantByCuisineAndNeighborhood(
+      cuisine,
+      neighborhood
+    );
+    const restaurantListMountPoint = document.getElementById(
+      "restaurants-list"
+    ) as HTMLElement;
+    render(
+      RestaurantList(filteredRestaurants, () => void updateRestaurants()),
+      restaurantListMountPoint
+    );
     if (window.state.map) {
-      window.state.markers.forEach(m => m.remove());
+      window.state.markers.forEach((m) => m.remove());
       window.state.markers = [];
       setMarkers(filteredRestaurants);
     }
@@ -115,5 +126,7 @@ toggleMapBtn.addEventListener("click", () => {
 });
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.ready.then(sw => sw.sync.register("sync-new-reviews")).catch(() => {});
+  navigator.serviceWorker.ready
+    .then((sw) => sw.sync.register("sync-new-reviews"))
+    .catch(() => {});
 }

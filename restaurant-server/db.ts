@@ -10,10 +10,10 @@
  *   - a path   → a file-backed database (persists across restarts)
  */
 
-import { DatabaseSync } from "node:sqlite";
-import { readFileSync, mkdirSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+import { mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
+import { fileURLToPath } from "node:url";
 
 import type { RestaurantRow, ReviewRow } from "./types.ts";
 
@@ -48,7 +48,7 @@ export interface OpenDatabaseResult {
  * Open (and, if necessary, seed) the database.
  */
 export function openDatabase({
-  databasePath = null,
+  databasePath = null
 }: OpenDatabaseOptions = {}): OpenDatabaseResult {
   const location = databasePath || ":memory:";
 

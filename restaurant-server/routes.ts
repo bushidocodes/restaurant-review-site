@@ -17,8 +17,8 @@
  *   DELETE /reviews/:id            delete a review
  */
 
-import express, { type Router } from "express";
 import type { DatabaseSync, SQLInputValue } from "node:sqlite";
+import express, { type Router } from "express";
 
 import type {
   LatLng,
@@ -26,7 +26,7 @@ import type {
   Restaurant,
   RestaurantRow,
   Review,
-  ReviewRow,
+  ReviewRow
 } from "./types.ts";
 
 /** Request-body shapes accepted by the create/update endpoints (all optional). */
@@ -53,11 +53,19 @@ const now = (): string => new Date().toISOString();
 // node:sqlite returns rows as `Record<string, SQLOutputValue>`. These two helpers
 // centralize the unavoidable cast to our typed row shapes in a single place, so
 // the handlers below stay free of inline `as` assertions.
-function one<T>(db: DatabaseSync, sql: string, ...params: SQLInputValue[]): T | undefined {
+function one<T>(
+  db: DatabaseSync,
+  sql: string,
+  ...params: SQLInputValue[]
+): T | undefined {
   return db.prepare(sql).get(...params) as unknown as T | undefined;
 }
 
-function all<T>(db: DatabaseSync, sql: string, ...params: SQLInputValue[]): T[] {
+function all<T>(
+  db: DatabaseSync,
+  sql: string,
+  ...params: SQLInputValue[]
+): T[] {
   return db.prepare(sql).all(...params) as unknown as T[];
 }
 
@@ -77,7 +85,7 @@ function toRestaurant(row: RestaurantRow): Restaurant {
       : null,
     is_favorite: Boolean(row.is_favorite),
     createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    updatedAt: row.updatedAt
   };
 }
 
@@ -89,7 +97,7 @@ function toReview(row: ReviewRow): Review {
     rating: row.rating,
     comments: row.comments,
     createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    updatedAt: row.updatedAt
   };
 }
 
@@ -106,13 +114,13 @@ const RESTAURANT_COLUMNS: Record<string, ColumnTransform> = {
   latlng: (v) => JSON.stringify(v ?? null),
   cuisine_type: (v) => v as string | null,
   operating_hours: (v) => JSON.stringify(v ?? null),
-  is_favorite: (v) => (v ? 1 : 0),
+  is_favorite: (v) => (v ? 1 : 0)
 };
 
 const REVIEW_COLUMNS: Record<string, ColumnTransform> = {
   name: (v) => v as string,
   rating: (v) => v as number | null,
-  comments: (v) => v as string | null,
+  comments: (v) => v as string | null
 };
 
 // Build a partial `UPDATE` from whichever known columns are present in the body.
@@ -139,7 +147,9 @@ function applyUpdate<TRow, TOut>(
   values.push(now());
   values.push(id);
 
-  db.prepare(`UPDATE ${table} SET ${sets.join(", ")} WHERE id = ?`).run(...values);
+  db.prepare(`UPDATE ${table} SET ${sets.join(", ")} WHERE id = ?`).run(
+    ...values
+  );
   // The row necessarily exists — `existing` was found above and the UPDATE keeps it.
   return mapRow(one<TRow>(db, `SELECT * FROM ${table} WHERE id = ?`, id)!);
 }
@@ -150,7 +160,10 @@ export function createApiRouter(db: DatabaseSync): Router {
   // ----- Restaurants -----
 
   router.get("/restaurants", (_req, res) => {
-    const rows = all<RestaurantRow>(db, "SELECT * FROM restaurants ORDER BY id");
+    const rows = all<RestaurantRow>(
+      db,
+      "SELECT * FROM restaurants ORDER BY id"
+    );
     res.json(rows.map(toRestaurant));
   });
 
@@ -205,13 +218,18 @@ export function createApiRouter(db: DatabaseSync): Router {
       req.body as Record<string, unknown>,
       toRestaurant
     );
-    if (!updated) return res.status(404).json({ error: "Restaurant not found" });
+    if (!updated)
+      return res.status(404).json({ error: "Restaurant not found" });
     res.json(updated);
   });
 
   router.delete("/restaurants/:id", (req, res) => {
     const id = Number(req.params.id);
-    const row = one<RestaurantRow>(db, "SELECT * FROM restaurants WHERE id = ?", id);
+    const row = one<RestaurantRow>(
+      db,
+      "SELECT * FROM restaurants WHERE id = ?",
+      id
+    );
     if (!row) return res.status(404).json({ error: "Restaurant not found" });
     db.prepare("DELETE FROM restaurants WHERE id = ?").run(id);
     res.json(toRestaurant(row));

@@ -1,8 +1,8 @@
+import compression from "compression";
 import express, { type Request, type Response } from "express";
+import rateLimit from "express-rate-limit";
 import morgan from "morgan";
 import path from "path";
-import compression from "compression";
-import rateLimit from "express-rate-limit";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,7 +14,7 @@ app.use(
     windowMs: 15 * 60 * 1000, // 15 minutes
     max: 200,
     standardHeaders: true,
-    legacyHeaders: false,
+    legacyHeaders: false
   })
 );
 
