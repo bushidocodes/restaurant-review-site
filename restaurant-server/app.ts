@@ -20,16 +20,16 @@
  *                   Secure flag on the session cookie.
  */
 
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express, {
-  type Request,
-  type Response,
   type NextFunction,
+  type Request,
+  type Response
 } from "express";
 import session from "express-session";
 import morgan from "morgan";
-import { existsSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
 
 import { openDatabase } from "./db.ts";
 import { createApiRouter } from "./routes.ts";
@@ -65,12 +65,21 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     if (origin && allowed.includes(origin)) {
       res.setHeader("Access-Control-Allow-Origin", origin);
       res.setHeader("Access-Control-Allow-Credentials", "true");
-      res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-      res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+      );
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type,Authorization"
+      );
     }
   } else {
     res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.setHeader(
+      "Access-Control-Allow-Methods",
+      "GET,POST,PUT,PATCH,DELETE,OPTIONS"
+    );
     res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
   }
   if (req.method === "OPTIONS") return res.sendStatus(204);
@@ -95,8 +104,8 @@ app.use(
     cookie: {
       secure: process.env.NODE_ENV === "production",
       httpOnly: true,
-      sameSite: "lax",
-    },
+      sameSite: "lax"
+    }
   })
 );
 
@@ -128,5 +137,7 @@ app.listen(PORT, () => {
         "Set DATABASE_PATH to persist."
     );
   }
-  console.log(`[api] Restaurant Reviews API listening on http://localhost:${PORT}`);
+  console.log(
+    `[api] Restaurant Reviews API listening on http://localhost:${PORT}`
+  );
 });

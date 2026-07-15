@@ -62,8 +62,9 @@ The whole codebase is [TypeScript](https://www.typescriptlang.org/). The front e
 type-stripped on the fly by Vite/Vitest, and the API runs through [`tsx`](https://tsx.is/); no
 build step is needed to run anything. `pnpm typecheck` runs `tsc --noEmit` across the browser app,
 the service worker, the build tooling, and the API. `pnpm lint` runs
-[ESLint](https://eslint.org/) ([`typescript-eslint`](https://typescript-eslint.io/)) over the
-whole repo (`pnpm lint:fix` to auto-fix). Both run in CI.
+[Biome](https://biomejs.dev/) over the whole repo (`pnpm lint:fix` to auto-fix). Type-aware
+checks that previously lived in typescript-eslint are covered by `pnpm typecheck`. Both lint and
+typecheck run in CI.
 
 The front end is built with [Vite](https://vitejs.dev/) (`vite.config.ts`). It's a multi-page
 app — `src/index.html` and `src/restaurant.html` are the two entry points. `pnpm run dev:ui`

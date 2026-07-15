@@ -20,7 +20,10 @@ export interface InitMapOptions {
   scrollwheel?: boolean;
 }
 
-export function mapMarkerForRestaurant(restaurant: Restaurant, map: L.Map): L.Marker {
+export function mapMarkerForRestaurant(
+  restaurant: Restaurant,
+  map: L.Map
+): L.Marker {
   const { lat, lng } = restaurant.latlng!;
   return L.marker([lat, lng], {
     title: restaurant.name
@@ -31,7 +34,10 @@ export function mapMarkerForRestaurant(restaurant: Restaurant, map: L.Map): L.Ma
     .addTo(map);
 }
 
-export function initMap(el: HTMLElement, options: InitMapOptions): Promise<L.Map> {
+export function initMap(
+  el: HTMLElement,
+  options: InitMapOptions
+): Promise<L.Map> {
   const { lat, lng } = options.center;
   const map = L.map(el, {
     zoom: options.zoom,
@@ -39,7 +45,8 @@ export function initMap(el: HTMLElement, options: InitMapOptions): Promise<L.Map
     scrollWheelZoom: false
   });
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    attribution:
+      '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }).addTo(map);
   window.state.map = map;
   return Promise.resolve(map);
@@ -50,7 +57,7 @@ export const setMarkers = (
   map: L.Map | undefined = window.state.map
 ): void => {
   if (!map) return;
-  restaurants.forEach(restaurant => {
+  restaurants.forEach((restaurant) => {
     const marker = mapMarkerForRestaurant(restaurant, map);
     window.state.markers.push(marker);
   });

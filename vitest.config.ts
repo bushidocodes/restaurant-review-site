@@ -1,5 +1,5 @@
-import { defineConfig } from "vitest/config";
 import { imagetools } from "vite-imagetools";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [imagetools()],
@@ -11,13 +11,17 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "html", "lcov"],
-      include: ["src/js/utils.ts", "src/js/dbhelper.ts", "src/js/imageLoader.ts"],
+      include: [
+        "src/js/utils.ts",
+        "src/js/dbhelper.ts",
+        "src/js/imageLoader.ts"
+      ],
       thresholds: {
         statements: 95,
         branches: 80,
         functions: 90,
-        lines: 95,
-      },
-    },
-  },
+        lines: 95
+      }
+    }
+  }
 });

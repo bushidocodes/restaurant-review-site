@@ -14,7 +14,19 @@ const fallbacks = import.meta.glob<string>("../img/*.jpg", {
 });
 
 const FALLBACK = "failwhale";
-const VALID = new Set(["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", FALLBACK]);
+const VALID = new Set([
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "10",
+  FALLBACK
+]);
 
 export interface RestaurantImage {
   srcSet: string;
