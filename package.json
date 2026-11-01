@@ -41,14 +41,14 @@
     "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "^4.1.10",
     "compression": "^1.7.4",
-    "express": "^5.2.1",
+    "express": "^5.3.0",
     "express-rate-limit": "^8.6.0",
     "fake-indexeddb": "^6.2.5",
     "jsdom": "^29.1.1",
-    "morgan": "^1.11.0",
+    "morgan": "^1.12.1",
     "npm-run-all2": "^9.0.2",
     "sharp": "^0.35.3",
-    "tsx": "^4.23.1",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vite": "^8.1.5",
     "vite-imagetools": "^10.0.1",
@@ -62,7 +62,7 @@
     "workbox-window": "^7.4.1"
   },
   "dependencies": {
-    "idb": "^8.0.0",
+    "idb": "^8.0.4",
     "leaflet": "^1.9.4",
     "lit-html": "^3.0.0"
   }
