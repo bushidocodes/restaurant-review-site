@@ -239,30 +239,6 @@
       "updatedAt": "2018-06-03T19:24:29.777Z",
       "is_favorite": false,
       "id": 10
-    },
-    {
-      "name": "Sean's Mission Chinese Food",
-      "neighborhood": "Manhattan",
-      "photograph": "1",
-      "address": "171 E Broadway, New York, NY 10002",
-      "latlng": {
-        "lat": 40.713829,
-        "lng": -73.989667
-      },
-      "cuisine_type": "Asian",
-      "operating_hours": {
-        "Monday": "5:30 pm - 11:00 pm",
-        "Tuesday": "5:30 pm - 11:00 pm",
-        "Wednesday": "5:30 pm - 11:00 pm",
-        "Thursday": "5:30 pm - 11:00 pm",
-        "Friday": "5:30 pm - 11:00 pm",
-        "Saturday": "12:00 pm - 4:00 pm, 5:30 pm - 12:00 am",
-        "Sunday": "12:00 pm - 4:00 pm, 5:30 pm - 11:00 pm"
-      },
-      "is_favorite": false,
-      "createdAt": "2018-06-02T21:55:26.928Z",
-      "updatedAt": "2018-06-03T19:24:26.708Z",
-      "id": 11
     }
   ],
   "reviews": [
@@ -547,7 +523,7 @@
     },
     {
       "name": "Sean",
-      "restaurant_id": "2",
+      "restaurant_id": 2,
       "rating": "4",
       "comments": "Really good pizza!",
       "createdAt": "2018-06-04T02:17:52.187Z",
@@ -556,7 +532,7 @@
     },
     {
       "name": "Sean",
-      "restaurant_id": "2",
+      "restaurant_id": 2,
       "rating": "3",
       "comments": "asdfa",
       "createdAt": "2018-06-04T02:19:38.269Z",
@@ -565,7 +541,7 @@
     },
     {
       "name": "Dude",
-      "restaurant_id": "2",
+      "restaurant_id": 2,
       "rating": "3",
       "comments": "wakak",
       "createdAt": "2018-06-04T02:20:28.805Z",
@@ -574,7 +550,7 @@
     },
     {
       "name": "Sean",
-      "restaurant_id": "2",
+      "restaurant_id": 2,
       "rating": "3",
       "comments": "safdsafs",
       "createdAt": "2018-06-04T02:22:08.799Z",
@@ -583,7 +559,7 @@
     },
     {
       "name": "Eric",
-      "restaurant_id": "4",
+      "restaurant_id": 4,
       "rating": "3",
       "comments": "Katz had great things!",
       "createdAt": "2018-06-04T23:24:57.598Z",
@@ -592,7 +568,7 @@
     },
     {
       "name": "Doug",
-      "restaurant_id": "4",
+      "restaurant_id": 4,
       "rating": "2",
       "comments": "Jazz was bad",
       "createdAt": "2018-06-04T23:26:36.362Z",
@@ -601,7 +577,7 @@
     },
     {
       "name": "Maria",
-      "restaurant_id": "4",
+      "restaurant_id": 4,
       "rating": "4",
       "comments": "Was tasty!",
       "createdAt": "2018-06-04T23:30:29.983Z",
@@ -610,7 +586,7 @@
     },
     {
       "name": "Phil",
-      "restaurant_id": "4",
+      "restaurant_id": 4,
       "rating": "2",
       "comments": "Beans were gud.",
       "createdAt": "2018-06-04T23:31:16.024Z",
@@ -619,7 +595,7 @@
     },
     {
       "name": "Dude",
-      "restaurant_id": "4",
+      "restaurant_id": 4,
       "rating": "4",
       "comments": "taste was overwhelming",
       "createdAt": "2018-06-04T23:32:31.113Z",
@@ -628,7 +604,7 @@
     },
     {
       "name": "Phillis",
-      "restaurant_id": "4",
+      "restaurant_id": 4,
       "rating": "3",
       "comments": "HVAC",
       "createdAt": "2018-06-04T23:34:16.923Z",
@@ -637,7 +613,7 @@
     },
     {
       "name": "Simon",
-      "restaurant_id": "4",
+      "restaurant_id": 4,
       "rating": "3",
       "comments": "burp",
       "createdAt": "2018-06-04T23:34:59.930Z",
@@ -646,7 +622,7 @@
     },
     {
       "name": "Ivan",
-      "restaurant_id": "6",
+      "restaurant_id": 6,
       "rating": "1",
       "comments": "Tasted nothing like my hometown... in Siberia",
       "createdAt": "2018-06-04T23:36:10.546Z",
@@ -655,7 +631,7 @@
     },
     {
       "name": "Franklin",
-      "restaurant_id": "6",
+      "restaurant_id": 6,
       "rating": "4",
       "comments": "finger lickin'",
       "createdAt": "2018-06-04T23:38:43.527Z",
@@ -664,7 +640,7 @@
     },
     {
       "name": "Bill",
-      "restaurant_id": "6",
+      "restaurant_id": 6,
       "rating": "3",
       "comments": "gud\n",
       "createdAt": "2018-06-04T23:40:42.153Z",
@@ -673,7 +649,7 @@
     },
     {
       "name": "Bob",
-      "restaurant_id": "6",
+      "restaurant_id": 6,
       "rating": "2",
       "comments": "not super great\n",
       "createdAt": "2018-06-04T23:41:53.241Z",
@@ -682,7 +658,7 @@
     },
     {
       "name": "Barbar",
-      "restaurant_id": "6",
+      "restaurant_id": 6,
       "rating": "4",
       "comments": "hydro",
       "createdAt": "2018-06-04T23:42:42.169Z",
@@ -691,7 +667,7 @@
     },
     {
       "name": "Bearbear",
-      "restaurant_id": "6",
+      "restaurant_id": 6,
       "rating": "5",
       "comments": "hydra",
       "createdAt": "2018-06-04T23:42:54.369Z",
@@ -700,7 +676,7 @@
     },
     {
       "name": "Snakesnake",
-      "restaurant_id": "6",
+      "restaurant_id": 6,
       "rating": "1",
       "comments": "hiss",
       "createdAt": "2018-06-04T23:47:18.798Z",
@@ -709,7 +685,7 @@
     },
     {
       "name": "Sean",
-      "restaurant_id": "3",
+      "restaurant_id": 3,
       "rating": "3",
       "comments": "Nice place to chill!",
       "createdAt": "2018-06-05T01:58:39.318Z",
@@ -718,7 +694,7 @@
     },
     {
       "name": "Erica",
-      "restaurant_id": "3",
+      "restaurant_id": 3,
       "rating": "4",
       "comments": "Good place to relax with friends!",
       "createdAt": "2018-06-05T01:59:51.934Z",
@@ -727,7 +703,7 @@
     },
     {
       "name": "Stevo",
-      "restaurant_id": "1",
+      "restaurant_id": 1,
       "rating": "3",
       "comments": "Just can't get enough of this place!",
       "createdAt": "2018-06-05T11:16:39.394Z",
@@ -736,7 +712,7 @@
     },
     {
       "name": "Bill",
-      "restaurant_id": "1",
+      "restaurant_id": 1,
       "rating": "2",
       "comments": "burgers",
       "createdAt": "2018-06-05T23:31:32.038Z",
@@ -745,7 +721,7 @@
     },
     {
       "name": "Bill",
-      "restaurant_id": "1",
+      "restaurant_id": 1,
       "rating": "2",
       "comments": "burgers",
       "createdAt": "2018-06-05T23:36:32.053Z",
@@ -754,7 +730,7 @@
     },
     {
       "name": "Franklin",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "3",
       "comments": "Fries are the bomb!",
       "createdAt": "2018-06-05T23:38:20.765Z",
@@ -763,7 +739,7 @@
     },
     {
       "name": "Franklin",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "3",
       "comments": "Fries are the bomb!",
       "createdAt": "2018-06-05T23:43:20.763Z",
@@ -772,7 +748,7 @@
     },
     {
       "name": "Franklin",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "3",
       "comments": "Fries are the bomb!",
       "createdAt": "2018-06-05T23:58:20.782Z",
@@ -781,7 +757,7 @@
     },
     {
       "name": "Jim",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "2",
       "comments": "dead",
       "createdAt": "2018-06-05T23:58:20.783Z",
@@ -790,7 +766,7 @@
     },
     {
       "name": "Kim",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "3",
       "comments": "Shake was not good",
       "createdAt": "2018-06-05T23:58:20.785Z",
@@ -799,7 +775,7 @@
     },
     {
       "name": "Bob",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "4",
       "comments": "Goood",
       "createdAt": "2018-06-06T00:01:25.529Z",
@@ -808,7 +784,7 @@
     },
     {
       "name": "Duog",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "4",
       "comments": "Jazz",
       "createdAt": "2018-06-06T00:05:08.651Z",
@@ -817,7 +793,7 @@
     },
     {
       "name": "dawg",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "4",
       "comments": "dliteful",
       "createdAt": "2018-06-06T00:07:20.162Z",
@@ -826,7 +802,7 @@
     },
     {
       "name": "Bill Bye",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "3",
       "comments": "Willard",
       "createdAt": "2018-06-06T00:12:09.371Z",
@@ -835,7 +811,7 @@
     },
     {
       "name": "offline man",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "5",
       "comments": "only if this posts",
       "createdAt": "2018-06-06T00:12:09.375Z",
@@ -844,7 +820,7 @@
     },
     {
       "name": "Dogg",
-      "restaurant_id": "7",
+      "restaurant_id": 7,
       "rating": "3",
       "comments": "Really liked teh dog food",
       "createdAt": "2018-06-06T00:46:20.714Z",
@@ -853,7 +829,7 @@
     },
     {
       "name": "Phil",
-      "restaurant_id": "5",
+      "restaurant_id": 5,
       "rating": "3",
       "comments": "Try the peppers",
       "createdAt": "2018-06-06T00:46:20.716Z",
@@ -862,7 +838,7 @@
     },
     {
       "name": "Online Man",
-      "restaurant_id": "8",
+      "restaurant_id": 8,
       "rating": "3",
       "comments": "online",
       "createdAt": "2018-06-06T00:49:03.073Z",
@@ -871,7 +847,7 @@
     },
     {
       "name": "Billy bob",
-      "restaurant_id": "8",
+      "restaurant_id": 8,
       "rating": "2",
       "comments": "more beer",
       "createdAt": "2018-06-06T00:52:49.348Z",
@@ -880,7 +856,7 @@
     },
     {
       "name": "Offline boy",
-      "restaurant_id": "8",
+      "restaurant_id": 8,
       "rating": "1",
       "comments": "gud",
       "createdAt": "2018-06-06T00:59:25.184Z",
@@ -889,7 +865,7 @@
     },
     {
       "name": "Offline man",
-      "restaurant_id": "8",
+      "restaurant_id": 8,
       "rating": "3",
       "comments": "give it a rip",
       "createdAt": "2018-06-06T00:59:25.185Z",
@@ -898,7 +874,7 @@
     },
     {
       "name": "offline girl",
-      "restaurant_id": "8",
+      "restaurant_id": 8,
       "rating": "5",
       "comments": "offline ",
       "createdAt": "2018-06-06T00:59:25.191Z",
@@ -907,7 +883,7 @@
     },
     {
       "name": "Online guy",
-      "restaurant_id": "2",
+      "restaurant_id": 2,
       "rating": "3",
       "comments": "go",
       "createdAt": "2018-06-06T01:51:10.597Z",
@@ -916,7 +892,7 @@
     },
     {
       "name": "offline goo",
-      "restaurant_id": "2",
+      "restaurant_id": 2,
       "rating": "2",
       "comments": "gooo",
       "createdAt": "2018-06-06T01:51:42.007Z",
@@ -925,7 +901,7 @@
     },
     {
       "name": "james",
-      "restaurant_id": "1",
+      "restaurant_id": 1,
       "rating": "3",
       "comments": "Beer was an IPA",
       "createdAt": "2018-06-07T01:44:48.975Z",
@@ -934,7 +910,7 @@
     },
     {
       "name": "Orange",
-      "restaurant_id": "8",
+      "restaurant_id": 8,
       "rating": "4",
       "comments": "Dutch",
       "createdAt": "2018-06-07T01:45:07.418Z",
@@ -943,7 +919,7 @@
     },
     {
       "name": "Greg",
-      "restaurant_id": "9",
+      "restaurant_id": 9,
       "rating": "3",
       "comments": "Nice raman. Quick service for lunch",
       "createdAt": "2018-06-07T02:12:53.472Z",
@@ -952,7 +928,7 @@
     },
     {
       "name": "Sarah",
-      "restaurant_id": "9",
+      "restaurant_id": 9,
       "rating": "1",
       "comments": "cold",
       "createdAt": "2018-06-07T02:13:25.439Z",
@@ -961,7 +937,7 @@
     },
     {
       "name": "Sallah",
-      "restaurant_id": "9",
+      "restaurant_id": 9,
       "rating": "3",
       "comments": "Good food and company",
       "createdAt": "2018-06-07T02:14:36.271Z",
@@ -970,7 +946,7 @@
     },
     {
       "name": "Erik",
-      "restaurant_id": "3",
+      "restaurant_id": 3,
       "rating": "3",
       "comments": "Vikings are cool",
       "createdAt": "2018-06-07T02:26:59.329Z",
@@ -979,7 +955,7 @@
     },
     {
       "name": "Erich",
-      "restaurant_id": "3",
+      "restaurant_id": 3,
       "rating": "4",
       "comments": "sehr gut",
       "createdAt": "2018-06-07T02:40:30.594Z",
@@ -988,7 +964,7 @@
     },
     {
       "name": "Ripoff",
-      "restaurant_id": "11",
+      "restaurant_id": 1,
       "rating": "3",
       "comments": "Sean is a jerk",
       "createdAt": "2018-06-07T02:58:05.134Z",
@@ -997,7 +973,7 @@
     },
     {
       "name": "God",
-      "restaurant_id": "11",
+      "restaurant_id": 1,
       "rating": "5",
       "comments": "Sean needs to learn to PWA better",
       "createdAt": "2018-06-07T02:58:35.302Z",
@@ -1006,7 +982,7 @@
     },
     {
       "name": "Dontrel",
-      "restaurant_id": "11",
+      "restaurant_id": 1,
       "rating": "5",
       "comments": "Sean made some good food",
       "createdAt": "2018-06-07T03:02:51.414Z",

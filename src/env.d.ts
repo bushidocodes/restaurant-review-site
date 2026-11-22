@@ -39,3 +39,9 @@ interface AppState {
 interface Window {
   state: AppState;
 }
+
+// vite-imagetools metadata imports used in tests to assert output pixel widths.
+declare module "*&as=metadata" {
+  const metadata: { src: string; width: number; height: number };
+  export default metadata;
+}
