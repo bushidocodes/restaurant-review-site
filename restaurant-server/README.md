@@ -35,12 +35,12 @@ quick demo. Set `DATABASE_PATH` to switch to a file and get real persistence
 All environment variables are optional. The defaults are chosen so the API runs
 with no configuration at all.
 
-| Variable | Purpose | Default |
-|---|---|---|
-| `PORT` | Port to listen on | `1337` |
-| `DATABASE_PATH` | Path to a SQLite file. When set, data persists across restarts and is seeded only once (on an empty file). When unset, an ephemeral in-memory database is used. | _(unset → in-memory)_ |
-| `CORS_ORIGIN` | Comma-separated list of allowed front-end origins. When unset, the request origin is reflected (convenient in local dev). Set this explicitly in production. | _(unset → reflect any origin)_ |
-| `SESSION_SECRET` | Secret used to sign the session cookie. Falls back to an insecure dev value (with a warning) when unset. Set a real value in production. | _(unset → dev fallback)_ |
+| Variable         | Purpose                                                                                                                                                         | Default                        |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| `PORT`           | Port to listen on                                                                                                                                               | `1337`                         |
+| `DATABASE_PATH`  | Path to a SQLite file. When set, data persists across restarts and is seeded only once (on an empty file). When unset, an ephemeral in-memory database is used. | _(unset → in-memory)_          |
+| `CORS_ORIGIN`    | Comma-separated list of allowed front-end origins. When unset, the request origin is reflected (convenient in local dev). Set this explicitly in production.    | _(unset → reflect any origin)_ |
+| `SESSION_SECRET` | Secret used to sign the session cookie. Falls back to an insecure dev value (with a warning) when unset. Set a real value in production.                        | _(unset → dev fallback)_       |
 
 ### Enabling persistence
 
@@ -59,19 +59,19 @@ npm start
 
 ## Endpoints
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/restaurants` | List all restaurants |
-| `GET` | `/restaurants/:id` | Get one restaurant |
-| `POST` | `/restaurants` | Create a restaurant |
-| `PUT` | `/restaurants/:id` | Partially update a restaurant (e.g. toggle `is_favorite`) |
-| `DELETE` | `/restaurants/:id` | Delete a restaurant |
-| `GET` | `/reviews` | List reviews. Filter with `?restaurant_id=<id>` |
-| `GET` | `/reviews/:id` | Get one review |
-| `POST` | `/reviews` | Create a review |
-| `PUT` | `/reviews/:id` | Partially update a review |
-| `DELETE` | `/reviews/:id` | Delete a review |
-| `GET` | `/healthcheck` | Returns `200` when the server is up |
+| Method   | Path               | Description                                               |
+| -------- | ------------------ | --------------------------------------------------------- |
+| `GET`    | `/restaurants`     | List all restaurants                                      |
+| `GET`    | `/restaurants/:id` | Get one restaurant                                        |
+| `POST`   | `/restaurants`     | Create a restaurant                                       |
+| `PUT`    | `/restaurants/:id` | Partially update a restaurant (e.g. toggle `is_favorite`) |
+| `DELETE` | `/restaurants/:id` | Delete a restaurant                                       |
+| `GET`    | `/reviews`         | List reviews. Filter with `?restaurant_id=<id>`           |
+| `GET`    | `/reviews/:id`     | Get one review                                            |
+| `POST`   | `/reviews`         | Create a review                                           |
+| `PUT`    | `/reviews/:id`     | Partially update a review                                 |
+| `DELETE` | `/reviews/:id`     | Delete a review                                           |
+| `GET`    | `/healthcheck`     | Returns `200` when the server is up                       |
 
 ### Create a review
 
