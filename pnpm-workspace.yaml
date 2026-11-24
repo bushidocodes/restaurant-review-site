@@ -4,11 +4,15 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
-# Pin patched transitive deps for open Dependabot alerts
-# (brace-expansion GHSA-3jxr-9vmj-r5cp, shell-quote GHSA-395f-4hp3-45gv, fast-uri GHSA-v2hh-gcrm-f6hx / GHSA-4c8g-83qw-93j6)
+# Pin patched transitive deps for Dependabot alerts.
+# Floors below are the first releases that clear the current advisories.
+# undici GHSA-4cwx-7wf7-3272, shell-quote GHSA-395f-4hp3-45gv,
+# brace-expansion GHSA-q2hr-2g5m-vwhr, fast-uri GHSA-qw65-cvwx-89v3
+# (and the older fast-uri advisories), browserslist GHSA-73wf-gq98-2v4g.
 overrides:
   undici: '^7.29.0'
-  'brace-expansion@2': 2.1.4
-  'brace-expansion@5': 5.0.9
+  'brace-expansion@2': 2.1.8
+  'brace-expansion@5': 5.0.13
   shell-quote: ^1.10.0
-  fast-uri: ^3.1.4
+  fast-uri: ^3.1.9
+  browserslist: ^4.28.7
